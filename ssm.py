@@ -1,6 +1,8 @@
 import re
 import sys
 
+stack = []
+
 # Read from standard input
 def scanner():
 	lines = sys.stdin.readlines()
@@ -21,17 +23,23 @@ def scanner():
 # Analyze the sequence (ordering, parameter, infinite loop)
 def semanticanalysis(lines):
 	for i in range(len(lines)):
-		if (isValid(lines[i])):
+		if (lines[i - 1] == 'ildc'):
+			if lines[i].isdigit():
+				continue
+			else:
+				sys.exit("Invalid instruction")
+		elif (lines[i - 1] == 'jz' or lines[i - 1] == 'jnz' or lines[i - 1] == 'jmp'):
+			if lines[i] + ':' in lines:
+				continue
 			sys.exit("Invalid instruction")
+		else:
+			if (isValid(lines[i]) is not True):
+				sys.exit("Invalid instruction")
 
 # Validate each element in the list
-### NOTE: currently giving error since there is no case for label without ':'
 def isValid(str):
 	# Checking for label
 	if ':' in str:
-		return True
-	# Checking for digit
-	if str.isdigit():
 		return True
 	# Checking for instruction
 	return {
@@ -52,8 +60,8 @@ def isValid(str):
 
 def main():
 	lines = scanner()
-	print lines
 	semanticanalysis(lines)
+	global stack
 
 	print lines
 if __name__ == '__main__':
