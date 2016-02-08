@@ -58,11 +58,77 @@ def isValid(str):
 		'store': True,
 	}.get(str, False)
 
+def instruction(lines):
+	global stack
+	i = 0
+	while i < len(lines):
+		if lines[i] == 'ildc':
+			stack.append(lines[i + 1])
+			i = i + 1
+		if lines[i] == 'iadd':
+			try:
+				stack.append(int(stack.pop()) + int(stack.pop()))
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'isub':
+			try:
+				num = int(stack.pop())
+				stack.append(int(stack.pop()) - num)
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'imul':
+			try:
+				stack.append(int(stack.pop()) * int(stack.pop()))
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'idiv':
+			try:
+				num = int(stack.pop())
+				stack.append(int(stack.pop()) / num)
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'pop':
+			try:
+				stack.pop()
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'dup':
+			try:
+				stack.append(stack[len(stack) - 1])
+			except:
+				sys.exit("No element in the stack")
+		if lines[i] == 'swap':
+			try:
+				stack.append(stack.pop(len(stack) - 2))
+			except:
+				sys.exit("No element in the stack")
+		if lines[i] == 'jz':
+			try:
+				if (int(stack.pop()) == 0):
+					i = lines.index(lines[i + 1] + ':')
+			except:
+				sys.exit("No element in the stack")
+		if lines[i] == 'jnz':
+			try:
+				if (int(stack.pop()) != 0):
+					i = lines.index(lines[i + 1] + ':')
+			except:
+				sys.exit("No element in the stack")
+		if lines[i] == 'jmp':
+			try:
+				i = lines.index(lines[i + 1] + ':')
+			except:
+				sys.exit("No element in the stack")
+		i += 1
+
 def main():
 	lines = scanner()
+	print lines
 	semanticanalysis(lines)
 	global stack
-
-	print lines
+	instruction(lines)
+	print stack
+	print stack.pop()
+		
 if __name__ == '__main__':
     main()

@@ -1,3 +1,7 @@
-ildc 10
-ildc 20
-iadd
+here:
+	ildc 20
+	ildc 40
+	jmp there
+	ildc 10
+there:
+	ildc 30
