@@ -1,7 +1,14 @@
 here:
 	ildc 20
+	jz quit
+	ildc 20
 	ildc 40
 	jmp there
 	ildc 10
 there:
-	ildc 30
+	iadd
+	ildc 60
+	isub
+	jmp here
+quit:
+	ildc 100

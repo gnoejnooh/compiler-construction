@@ -23,7 +23,7 @@ def scanner():
 # Analyze the sequence (ordering, parameter, infinite loop)
 def semanticanalysis(lines):
 	for i in range(len(lines)):
-		if (lines[i - 1] == 'ildc'):
+		if (lines[i - 1] == 'ildc'):4
 			if lines[i].isdigit():
 				continue
 			else:
@@ -48,6 +48,7 @@ def isValid(str):
 		'isub': True,
 		'imul': True,
 		'idiv': True,
+		'imod': True,
 		'pop': True,
 		'dup': True,
 		'swap': True,
@@ -63,7 +64,7 @@ def instruction(lines):
 	i = 0
 	while i < len(lines):
 		if lines[i] == 'ildc':
-			stack.append(lines[i + 1])
+			stack.append(int(lines[i + 1]))
 			i = i + 1
 		if lines[i] == 'iadd':
 			try:
@@ -85,6 +86,12 @@ def instruction(lines):
 			try:
 				num = int(stack.pop())
 				stack.append(int(stack.pop()) / num)
+			except:
+				sys.exit("Pop from empty stack")
+		if lines[i] == 'imod':
+			try:
+				num = int(stack.pop())
+				stack.append(int(stack.pop()) % num)
 			except:
 				sys.exit("Pop from empty stack")
 		if lines[i] == 'pop':
@@ -123,11 +130,9 @@ def instruction(lines):
 
 def main():
 	lines = scanner()
-	print lines
 	semanticanalysis(lines)
 	global stack
 	instruction(lines)
-	print stack
 	print stack.pop()
 		
 if __name__ == '__main__':
