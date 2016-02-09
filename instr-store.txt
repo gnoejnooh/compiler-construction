@@ -1,0 +1,21 @@
+ildc 20
+ildc 10
+store
+ildc 30
+ildc 20
+store
+ildc 1
+ildc 2
+ildc 3
+ildc 4
+ildc 5
+ildc 30
+load
+load
+ildc 100
+ildc 200
+ildc 300
+ildc 400
+store
+store
+
