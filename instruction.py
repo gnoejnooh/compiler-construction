@@ -6,6 +6,9 @@ store_value = []
 
 def compile(lines):
 	global stack
+	global store_addr
+	global store_value
+	
 	i = 0
 	while i < len(lines):
 		if lines[i] == 'ildc':
@@ -75,17 +78,20 @@ def compile(lines):
 			if len(stack) > 1 and (stack[len(stack)-1] is not None) and (stack[len(stack)-2] is not None):
 				v1 = stack.pop()
 				v2 = stack.pop()
-				store_addr.append(v2)
-				store_value.append(v1)
+				if v2 in store_addr:
+					store_value[store_addr.index(v2)] = v1
+				else:
+					store_addr.append(v2)
+					store_value.append(v1)
 			else:
 				sys.exit("Invaild stack: there is not enough data on the stack")
 		elif lines[i] == 'load':
-			if len(stack) > 0:
+			if len(stack) > 0 and len(store_addr) > 0 and len(store_value) > 0:
 				v1 = stack.pop()
 				if v1 in store_addr:
 					addr = store_addr.index(v1)
-					store_addr.pop(addr)
-					val = store_value.pop(addr)
+					store_addr[addr]
+					val = store_value[addr]
 					stack.append(val)
 				else:
 					sys.exit("Invaild address: The given address does not exist on the store")
