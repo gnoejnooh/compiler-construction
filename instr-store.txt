@@ -1,4 +1,4 @@
-ildc 20
+ildc 10
 ildc 10
 store
 ildc 30
@@ -10,7 +10,7 @@ ildc 3
 ildc 4
 ildc 5
 ildc 30
-load
+
 load
 ildc 100
 ildc 200

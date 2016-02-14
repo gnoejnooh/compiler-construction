@@ -2,11 +2,11 @@ import re
 import sys
 import instruction
 
-stack = []
-
 # Read from standard input
 def scanner():
 	lines = sys.stdin.readlines()
+	if len(lines) == 0:
+		sys.exit("Invaild input: There is no input.")
 	newline = []
 	for i in range(len(lines)):
 		# Consideration for the comment line
@@ -25,17 +25,27 @@ def scanner():
 def semanticanalysis(lines):
 	for i in range(len(lines)):
 		if lines[i - 1] == 'ildc':
-			if lines[i].isdigit():
+			if lines[i].lstrip('-').isdigit():
 				continue
 			else:
-				sys.exit("Invalid instruction")
+				sys.exit("Input: " + lines[i] + "\nInvalid input: Wrong input (Not a digit)")
 		elif (lines[i - 1] == 'jz' or lines[i - 1] == 'jnz' or lines[i - 1] == 'jmp'):
 			if lines[i] + ':' in lines:
+				tmpLine = lines[i]
+				for j in range(len(tmpLine)):
+					if(tmpLine[j].isalpha()):
+						continue
+					elif j == 0 and tmpLine[j] == '_':
+						sys.exit("Input: " + lines[i] + "\nInvaild label: Label starts with underscore('_')")
+					elif tmpLine[j] == '_':
+						continue
+					else:
+						sys.exit("Input: " + lines[i] + "\nInvaild label: Label name has invaild character")
 				continue
-			sys.exit("Invalid instruction")
+			sys.exit("Input: " + lines[i] + "\nInvalid input: label does not exist")
 		else:
 			if (isValid(lines[i]) is not True):
-				sys.exit("Invalid instruction")
+				sys.exit("Input: " + lines[i] + "\nInvalid command: Please check the command")
 
 # Validate each element in the list
 def isValid(str):

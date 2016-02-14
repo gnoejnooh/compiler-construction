@@ -1,14 +1,18 @@
-here:
-	ildc 20
-	jz quit
-	ildc 20
-	ildc 40
-	jmp there
-	ildc 10
 there:
+	ildc -60
+	jmp he_re
+he_re:
+	ildc 20
+	ildc 20
 	iadd
-	ildc 60
-	isub
-	jmp here
+	
+	ildc 40
+	ildc 0
+	jz zero
+	jnz notzero
+zero:
+	ildc 0
+	jmp quit
+notzero:
+	ildc 1
 quit:
-	ildc 100
