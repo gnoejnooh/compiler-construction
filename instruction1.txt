@@ -11,7 +11,6 @@ he_re:
 	jz zero
 	jnz notzero
 zero:
-	ildc 0
 	jmp quit
 notzero:
 	ildc 1

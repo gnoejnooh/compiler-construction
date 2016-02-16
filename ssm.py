@@ -24,11 +24,14 @@ def scanner():
 # Analyze the sequence (ordering, parameter, infinite loop)
 def semanticanalysis(lines):
 	for i in range(len(lines)):
+		# First check the instruction with parameter (ildc, jz, jnz, and jmp)
+		# For ildc, see if the parameter is digit
 		if lines[i - 1] == 'ildc':
 			if lines[i].lstrip('-').isdigit():
 				continue
 			else:
 				sys.exit("Input: " + lines[i] + "\nInvalid input: Wrong input (Not a digit)")
+		# For jumps, see if the parameter is the valid label
 		elif (lines[i - 1] == 'jz' or lines[i - 1] == 'jnz' or lines[i - 1] == 'jmp'):
 			if lines[i] + ':' in lines:
 				tmpLine = lines[i]
@@ -43,6 +46,7 @@ def semanticanalysis(lines):
 						sys.exit("Input: " + lines[i] + "\nInvaild label: Label name has invaild character")
 				continue
 			sys.exit("Input: " + lines[i] + "\nInvalid input: label does not exist")
+		# Check the validity of instructions with no parameter
 		else:
 			if (isValid(lines[i]) is not True):
 				sys.exit("Input: " + lines[i] + "\nInvalid command: Please check the command")

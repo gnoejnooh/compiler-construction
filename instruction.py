@@ -78,10 +78,13 @@ def compile(lines):
 				sys.exit("Empty Stack Error: No element in the stack")
 		elif lines[i] == 'store':
 			if len(stack) > 1 and (stack[len(stack)-1] is not None) and (stack[len(stack)-2] is not None):
+				# Get the two value from the stack
 				v1 = stack.pop()
 				v2 = stack.pop()
+				# Check if the address value is already in the stack
 				if v2 in store_addr:
 					store_value[store_addr.index(v2)] = v1
+				# Append values to each address and value memory
 				else:
 					store_addr.append(v2)
 					store_value.append(v1)
@@ -89,7 +92,9 @@ def compile(lines):
 				sys.exit("Invaild stack: there is not enough data on the stack")
 		elif lines[i] == 'load':
 			if len(stack) > 0 and len(store_addr) > 0 and len(store_value) > 0:
+				# Get the address value from the stack
 				v1 = stack.pop()
+				# If the value exist in the address memory, execute load
 				if v1 in store_addr:
 					addr = store_addr.index(v1)
 					store_addr[addr]
@@ -100,10 +105,4 @@ def compile(lines):
 			else:
 				sys.exit("Invaild store: there is not enough data on the store")
 		i += 1
-	#print 'Stack'
-	#print stack
-	#print 'Store_addr'
-	#print store_addr
-	#print 'Store_value'
-	#print store_value
 	return stack.pop()
