@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 
-yacc.yacc()
+
 
 # Set arithmetic precedence
 precedence = {
@@ -13,3 +13,17 @@ precedence = {
 	('left', 'TIMES', 'DIVIDE'),
 	('left', 'NOT')
 }
+
+# Arithmeti operation
+def p_expression_arithmetic(t):
+	if t[2] == '+' : t[0] = t[1] + t[3]
+	elif t[2] == '-' : t[0] = t[1] - t[3]
+	elif t[2] == '*' : t[0] = t[1] * t[3]
+	elif t[2] == '/' : t[0] = t[1] / t[3]
+
+# Error case - syntax error
+def p_error(t):
+	raise SyntaxError("Invalid syntax")
+
+# Build the parser
+yacc.yacc()
