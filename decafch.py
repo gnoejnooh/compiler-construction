@@ -1,7 +1,11 @@
+from ply import *
+import decaflexer
+import decafparser
+
 def main():
-	filename = raw_input('Decaf Syntax Checker\nEnter file name: ')
-	file = open(filename, 'r+')
-	yacc.parse(file)
+	#filename = raw_input('Decaf Syntax Checker\nEnter file name: ')
+	filename = "test.txt"
+	yacc.parse(open(filename).read())
 	print "Yes"
 		
 if __name__ == '__main__':
