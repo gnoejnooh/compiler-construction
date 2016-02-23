@@ -74,61 +74,91 @@ precedence = (
 	
 	method_invocation : field_access (arguments?)
 
-	expr : primary
-		 | assign
-		 | expr arith_op expr
-		 | expr bool_op expr
-		 | unary_op expr
-
 	assign : lhs = expr
 		   | lhs ++
 		   | ++ lhs
 		   | lhs --
 		   | -- lhs
 
-	TOKEN arith_op {+, -, *, /}
-	TOKEN bool_op {&&, ||, ==, !=, <, >, <=, >=}
-	TOKEN unary_op {+, -, !}
-
 	stmt_expr : assign
 			  | method_invocation '''
+### expr : primary
+# 		 | assign
+#		 | expr arith_op expr
+#		 | expr bool_op expr
+#		 | unary_op expr
+def p_expr(p):
+	'''expr 		: primary
+					| assign
+					| expr arith_op expr
+					| expr bool_op expr
+					| unary_op expr'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = (p[1],None,None)
 
-'''
-def p_expression_uminus(p):
-	'expression : MINUS expression UMINUS'
-	p[0] = -p[2]
-'''
-def p_arithmetic_op(p):
-	'''expression 	: expression PLUS term
-					| expression MINUS term
-		term 		: term TIMES factor
-					| term DIVIDE factor'''
-	if p[2] == '+' : p[0] = p[1] + p[3]
-	elif p[2] == '-' : p[0] = p[1] - p[3]
-	elif p[2] == '*' : p[0] = p[1] * p[3]
-	elif p[2] == '/' : p[0] = p[1] / p[3]
+def p_primary(p):
+	'''primary : literal
+			   | LPAREN expr RPAREN
+			   | lhs'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = p[1]
 
-def p_expression_term(p):
-	'expression : term'
+def p_assign(p):
+	'''assign : lhs EQUALS expr
+			  | lhs PLUSPLUS
+			  | PLUSPLUS lhs
+			  | lhs MINUSMINUS
+			  | MINUSMINUS lhs'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = (p[1],p[2])
+
+def p_lhs(p):
+	'lhs : field_access'
 	p[0] = p[1]
 
-def p_term_factor(p):
-	'term : factor'
+def p_field_access(p):
+	'''field_access : primary PERIOD ID
+				 	| ID'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = p[1]
+
+def p_literal(p):
+	'literal : NUMBER'
+	p[0] = p[1]
+### arith_op {+, -, *, /}
+def p_arith_op(p):
+	'''arith_op : PLUS
+				| MINUS
+				| TIMES
+				| DIVIDE'''
+	p[0] = p[1]
+### bool_op {&&, ||, ==, !=, <, >, <=, >=}
+def p_bool_op(p):
+	'''bool_op : AND
+			   | OR
+			   | EE
+			   | NE
+			   | LT
+			   | GT
+			   | LE
+			   | GE'''
+	p[0] = p[1]
+### unary_op {+, -, !}
+def p_unary_op(p):
+	'''unary_op : PLUS
+				| MINUS
+				| NOT'''
 	p[0] = p[1]
 
-def p_factor_num(p):
-	'factor : NUMBER'
-	p[0] = p[1]
-
-def p_factor_expr(p):
-	'factor : LPAREN expression RPAREN'
-	p[0] = p[2]
-'''
-def p_empty(p):
-	'empty :'
-	pass
-'''
 def p_error(p):
 	print ("Syntax error at '%s'" % p.value)
 
-yacc.yacc(method="LALR")
+yacc.yacc(method="LALR", debug=0)
