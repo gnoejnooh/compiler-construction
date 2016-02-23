@@ -2,38 +2,97 @@ import ply.yacc as yacc
 from decaflexer import tokens
 
 # Set arithmetic precedence
-'''
-precedence = (
-	('left', 'OR'),
-	('left', 'AND'),
-	('left', 'EQUALS'),
-	('left', 'NOTEQUALS'),
-	('left', 'LT', 'GT', 'LE', 'GE'),
-	('left', 'PLUS', 'MINUS'),
-	('left', 'TIMES', 'DIVIDE'),
-	('left', 'NOT')
-)
-'''
-
 precedence = (
 	('left', 'PLUS', 'MINUS'),
 	('left', 'TIMES', 'DIVIDE'),
 	#('left', 'UMINUS'),
 )
 
-'''
-GRAMMER RULE FOR ARITHMETIC EXPRESSION
-expression : expression + term
-           | expression - term
-           | term
+### A DECAF PROGRAM IS A SEQUENCE OF CLASS DECLARATIONS.
+''' prgram : class_decl* '''
 
-term       : term * factor
-           | term / factor
-           | factor
+### CLASS DECLARATIONS
+''' class_decl : class id (extends id)? {class_body_decl+}
+	class_body_decl : field_decl
+					| method_decl
+					| constructor_decl '''
 
-factor     : NUMBER
-           | ( expression )
-'''
+### FIELDS (NO ARRAY FOR VARIABLE)
+''' field_decl : modifier var_decl
+	modifier : (public | private)?(static)?
+	var_decl : type variable ;
+	type : int
+		 | float
+		 | boolean
+		 | id
+	variables : variable(, variable)*
+	variable : id '''
+
+### INHERITANCE - DO WE CHECK FOR SAME CLASS NAME? NO CLUE...
+
+### METHODS AND CONSTRUCTORS
+''' method_decl : modifier (type | void) id (formals?) block
+	constructor_decl : modifier id (formals?) block
+	formals : formal_param (, formal_param)*
+	formal_param : type variable '''
+
+### STATEMENTS
+''' block : { stmt* }
+	stmt : if (expr) stmt (else stmt)?
+		 | while (expr) stmt
+		 | for (stmt_expr? ; expr? ; stmt_expr?) stmt
+		 | return expr? ;
+		 | stmt_expr ;
+		 | break ;
+		 | continue ;
+		 | block
+		 | var_decl
+		 | ; '''
+
+### EXPRESSIONS
+''' literal : int_const
+			| float_const
+			| string_const
+			| null
+			| true
+			| false
+	
+	primary : literal
+			| this
+			| super
+			| (expr)
+			| new id(arguments?)
+			| lhs
+			| method_invocation
+	
+	arguments : expr (, expr)*
+	
+	lhs : field_access
+	
+	field_access : primary . id
+				 | id
+	
+	method_invocation : field_access (arguments?)
+
+	expr : primary
+		 | assign
+		 | expr arith_op expr
+		 | expr bool_op expr
+		 | unary_op expr
+
+	assign : lhs = expr
+		   | lhs ++
+		   | ++ lhs
+		   | lhs --
+		   | -- lhs
+
+	TOKEN arith_op {+, -, *, /}
+	TOKEN bool_op {&&, ||, ==, !=, <, >, <=, >=}
+	TOKEN unary_op {+, -, !}
+
+	stmt_expr : assign
+			  | method_invocation '''
+
 '''
 def p_expression_uminus(p):
 	'expression : MINUS expression UMINUS'
