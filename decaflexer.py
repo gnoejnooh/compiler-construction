@@ -15,27 +15,38 @@ lex INFORMATION
 
 # Reserved words
 '''
-keywords = (
+reserved = (
 	'BOOLEAN', 'BREAK', 'CONTINUE', 'CLASS', 'DO', 'ELSE',
 	'EXTENDS', 'FALSE', 'FLOAT', 'FOR', 'IF', 'INT',
-	'NEW', 'NULL', 'PRIVATE', 'PUBLIC', 'RETURN', 'STATIC',
+	'NEW', 'null': 'NULL', 'PRIVATE', 'PUBLIC', 'RETURN', 'STATIC',
 	'SUPER', 'THIS', 'TRUE', 'VOID', 'WHILE',
 )
 '''
+reserved = (
+	'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE',
+	'NEW', 'SUPER', 'THIS',
+)
 # Tokens recognized by the lexer
-tokens = (
-	'ID', 'NUMBER',
+tokens = reserved + (
+	'ID', 'INT_CONST', 'FLOAT_CONST', 'STRING_CONST',
+	'NULL', 'TRUE', 'FALSE',
 	'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
 	'AND', 'OR', 'EE', 'NE', 'LT', 'GT', 'LE', 'GE',
 	'NOT',
-	'LPAREN', 'RPAREN',
+	'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE',
 	'PLUSPLUS', 'MINUSMINUS',
 	'EQUALS',
-	'PERIOD',
+	'PERIOD', 'COMMA', 'SEMI',
 )
 
 
 t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
+t_INT_CONST = r'\d+'    
+t_FLOAT_CONST   = r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))'
+t_STRING_CONST  = r'\".*?\"'
+t_FALSE = r'\x66\x61\x6c\x73\x65'  # 'false'
+t_TRUE = r'\x74\x72\x75\x65'      # 'true'
+t_NULL = r'\x6e\x75\x6c\x6c'      # 'null'
 # Arithmetic Operators
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -60,27 +71,25 @@ t_MINUSMINUS = r'--'
 # Delimeters
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
 
 t_PERIOD = r'\.'
+t_COMMA = r','
+t_SEMI = r';'
 '''
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
-t_COMMA = r','
-
-t_SEMI = r';'
 t_COLON = r':'
 '''
+reserved_map = { }
+for r in reserved:
+	reserved_map[r.lower()] = r
 
-def t_NUMBER(t):
-    r'\d+'
-    try:
-    	t.value = int(t.value)
-    except ValueError:
-    	print "Line %d: Number %s is too large!" % (t.lineno,t.value)
-    	t.value = 0
-    return t
+# Comments
+def t_comment(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
 
 def t_newline(t):
 	r'\n+'
