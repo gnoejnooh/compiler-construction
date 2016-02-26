@@ -8,38 +8,109 @@ precedence = (
 	#('left', 'UMINUS'),
 )
 
-### A DECAF PROGRAM IS A SEQUENCE OF CLASS DECLARATIONS.
-''' prgram : class_decl* '''
-
-### CLASS DECLARATIONS
-''' class_decl : class id (extends id)? {class_body_decl+}
-	class_body_decl : field_decl
-					| method_decl
-					| constructor_decl '''
-
-### FIELDS (NO ARRAY FOR VARIABLE)
-''' field_decl : modifier var_decl
-	modifier : (public | private)?(static)?
-	var_decl : type variable ;
-	type : int
-		 | float
-		 | boolean
-		 | id
-	variables : variable(, variable)*
-	variable : id '''
+#--------------------------------A DECAF PROGRAM------------------------------------#
+#prgram : class_decl*
+def p_program(p):
+	'''program		: class_decl
+					| program class_decl'''
+	if len(p) == 3:
+		p[0] = (p[1],p[2])
+	else:
+		p[0] = p[1]
+#--------------------------------CLASS DECLARATIONS---------------------------------#
+#class_decl : class id (extends id)? {class_body_decl+}
+def p_class_decl(p):
+	'''class_decl 		: CLASS ID EXTENDS ID LBRACE class_body_decl
+						| CLASS ID LBRACE class_body_decl
+						| class_decl class_body_decl
+						| class_decl RBRACE'''
+	if len(p) == 7:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
+	elif len(p) == 5:
+		p[0] = (p[1],p[2],p[3],p[4])
+	else:
+		p[0] = (p[1],p[2])
+#class_body_decl : field_decl
+#				 | method_decl
+#			 	 | constructor_decl
+def p_class_body_decl(p):
+	'''class_body_decl	: field_decl
+						| method_decl
+						| constructor_decl'''
+	p[0] = p[1]
+#--------------------------------------FIELDS----------------------------------------#
+#field_decl : modifier var_decl
+def p_field_decl(p):
+	'''field_decl		: modifier var_decl'''
+	p[0] = (p[1],p[2])
+#modifier : (public | private)?(static)?
+def p_modifier(p):
+	'''modifier			: PUBLIC STATIC
+						| PRIVATE STATIC
+						| PUBLIC
+						| PRIVATE
+						| STATIC'''
+	if len(p) == 3:
+		p[0] = (p[1],p[2])
+	else:
+		p[0] = p[1]
+#var_decl : type variable ;
+def p_var_decl(p):
+	'''var_decl			: type variable'''
+	p[0] = (p[1],p[2])
+def p_type(p):
+	'''type				: INT
+						| FLOAT
+						| BOOLEAN
+						| ID'''
+	p[0] = p[1]
+#variables : variable(, variable)*
+def p_variables(p):
+	'''variables		: variable
+						| variables COMMA variable'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = p[1]
+#variable : id
+def p_variable(p):
+	'''variable			: ID'''
+	p[0] = p[1]
 
 ### INHERITANCE - DO WE CHECK FOR SAME CLASS NAME? NO CLUE...
 
-### METHODS AND CONSTRUCTORS
-''' method_decl : modifier (type | void) id (formals?) block
-	constructor_decl : modifier id (formals?) block
-	formals : formal_param (, formal_param)*
-	formal_param : type variable '''
-
-### STATEMENTS
-
-#----------------------------------EXPRESSIONS-------------------------------------#
-
+#-------------------------------METHODS AND CONSTRUCTORS---------------------------#
+#method_decl : modifier (type | void) id (formals?) block
+def p_method_decl(p):
+	'''mehtod_decl		: modifier type ID LPAREN formals RPAREN block
+						| modifier type ID LPAREN RPAREN block
+						| modifier VOID ID LPAREN formals RPAREN block
+						| modifier VOID ID LPAREN RPAREN block'''
+	if len(p) == 8:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7])
+	else:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
+#constructor_decl : modifier id (formals?) block
+def p_constructor_decl(p):
+	'''constructor_decl	: modifier ID LPAREN formals RPAREN block
+						| modifier ID LPAREN RPAREN block'''
+	if len(p) == 7:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
+	else:
+		p[0] = (p[1],p[2],p[3],p[4],p[5])
+#formals : formal_param (, formal_param)*
+def p_formals(p):
+	'''formals			: formal_param
+						| formals COMMA formal_param'''
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
+	else:
+		p[0] = p[1]
+#formal_param : type variable
+def p_formal_param(p):
+	'''formal_param		: type variable'''
+	p[0] = (p[1],p[2])
+#------------------------------------STATEMENTS-------------------------------------#
 #stmt : if (expr) stmt (else stmt)?
 #		 | while (expr) stmt
 #		 | for (stmt_expr? ; expr? ; stmt_expr?) stmt
@@ -60,7 +131,7 @@ def p_stmt(p):
 					| BREAK SEMI
 					| CONTINUE SEMI
 					| block
-
+					| var_decl
 					| SEMI'''
 	if len(p) == 10:
 		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9])
@@ -81,6 +152,7 @@ def p_block(p):
 		p[0] = (p[1],p[2])
 	else:
 		p[0] = p[1]
+#----------------------------------EXPRESSIONS-------------------------------------#
 # expr : primary
 #      | assign
 #	   | expr arith_op expr

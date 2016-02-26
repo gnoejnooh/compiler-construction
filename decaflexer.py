@@ -14,17 +14,13 @@ lex INFORMATION
 '''
 
 # Reserved words
-'''
-reserved = (
-	'BOOLEAN', 'BREAK', 'CONTINUE', 'CLASS', 'DO', 'ELSE',
-	'EXTENDS', 'FALSE', 'FLOAT', 'FOR', 'IF', 'INT',
-	'NEW', 'null': 'NULL', 'PRIVATE', 'PUBLIC', 'RETURN', 'STATIC',
-	'SUPER', 'THIS', 'TRUE', 'VOID', 'WHILE',
-)
-'''
 reserved = (
 	'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE',
 	'NEW', 'SUPER', 'THIS',
+	'PUBLIC', 'PRIVATE', 'STATIC', 'VOID',
+	'INT', 'FLOAT', 'BOOLEAN',
+	'TRUE', 'FALSE', 'null': 'NULL',
+	'CLASS', 'EXTENDS',
 )
 # Tokens recognized by the lexer
 tokens = reserved + (
@@ -44,9 +40,6 @@ t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
 t_INT_CONST = r'\d+'    
 t_FLOAT_CONST   = r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))'
 t_STRING_CONST  = r'\".*?\"'
-t_FALSE = r'\x66\x61\x6c\x73\x65'  # 'false'
-t_TRUE = r'\x74\x72\x75\x65'      # 'true'
-t_NULL = r'\x6e\x75\x6c\x6c'      # 'null'
 # Arithmetic Operators
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -77,11 +70,7 @@ t_RBRACE = r'\}'
 t_PERIOD = r'\.'
 t_COMMA = r','
 t_SEMI = r';'
-'''
-t_LBRACKET = r'\['
-t_RBRACKET = r'\]'
-t_COLON = r':'
-'''
+
 reserved_map = { }
 for r in reserved:
 	reserved_map[r.lower()] = r
