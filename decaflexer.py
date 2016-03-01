@@ -1,4 +1,4 @@
-import ply.lex as lex
+from ply import *
 
 '''
 lex INFORMATION
@@ -15,13 +15,14 @@ lex INFORMATION
 
 # Reserved words
 reserved = (
+	'CLASS', 'EXTENDS',
 	'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE',
 	'NEW', 'SUPER', 'THIS',
 	'PUBLIC', 'PRIVATE', 'STATIC', 'VOID',
 	'INT', 'FLOAT', 'BOOLEAN',
 	'TRUE', 'FALSE', 'NULL',
-	'CLASS', 'EXTENDS',
 )
+
 # Tokens recognized by the lexer
 tokens = reserved + (
 	'ID', 'INT_CONST', 'FLOAT_CONST', 'STRING_CONST',
@@ -30,10 +31,10 @@ tokens = reserved + (
 	'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE',
 	'PLUSPLUS', 'MINUSMINUS',
 	'EQUALS',
-	'PERIOD', 'COMMA', 'SEMI',
+	'PERIOD', 'COMMA', 'SEMI'
 )
 
-t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
+#t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
 t_INT_CONST = r'\d+'    
 t_FLOAT_CONST   = r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))'
 t_STRING_CONST  = r'\".*?\"'
@@ -71,7 +72,10 @@ t_SEMI = r';'
 reserved_map = { }
 for r in reserved:
 	reserved_map[r.lower()] = r
-
+def t_ID(t):
+    r'[a-zA-Z][a-zA-Z0-9_]*'
+    t.type = reserved_map.get(t.value,"ID")
+    return t
 # Comments
 # need to implement //
 def t_comment(t):

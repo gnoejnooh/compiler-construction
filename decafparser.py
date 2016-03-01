@@ -3,9 +3,14 @@ from decaflexer import tokens
 
 # Set arithmetic precedence
 precedence = (
+	('left', 'EQUALS'),
+	('left', 'OR'),
+	('left', 'AND'),
+	('left', 'EE','NE'),
+	('left', 'GT','LT','GE','LE'),
 	('left', 'PLUS', 'MINUS'),
 	('left', 'TIMES', 'DIVIDE'),
-	#('left', 'UMINUS'),
+	('left', 'NOT'),
 )
 
 #--------------------------------A DECAF PROGRAM------------------------------------#
@@ -313,6 +318,6 @@ def p_empty(p):
 	'empty :'
 
 def p_error(p):
-	print ("Syntax error at '%s'" % p.value)
-
+	#print ("Syntax error at '%s,%d'" % p.value, p.lineno)
+	raise SyntaxError(p)
 yacc.yacc(method="LALR", debug=0)
