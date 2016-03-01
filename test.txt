@@ -1,1 +1,5 @@
-while(i > 0) { a++ }
+class hello_world {
+        public static void main() {
+
+	} 
+}

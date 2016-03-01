@@ -19,22 +19,19 @@ reserved = (
 	'NEW', 'SUPER', 'THIS',
 	'PUBLIC', 'PRIVATE', 'STATIC', 'VOID',
 	'INT', 'FLOAT', 'BOOLEAN',
-	'TRUE', 'FALSE', 'null': 'NULL',
+	'TRUE', 'FALSE', 'NULL',
 	'CLASS', 'EXTENDS',
 )
 # Tokens recognized by the lexer
 tokens = reserved + (
 	'ID', 'INT_CONST', 'FLOAT_CONST', 'STRING_CONST',
-	'NULL', 'TRUE', 'FALSE',
 	'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
-	'AND', 'OR', 'EE', 'NE', 'LT', 'GT', 'LE', 'GE',
-	'NOT',
+	'AND', 'OR', 'EE', 'NE', 'LT', 'GT', 'LE', 'GE', 'NOT',
 	'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE',
 	'PLUSPLUS', 'MINUSMINUS',
 	'EQUALS',
 	'PERIOD', 'COMMA', 'SEMI',
 )
-
 
 t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
 t_INT_CONST = r'\d+'    
@@ -76,6 +73,7 @@ for r in reserved:
 	reserved_map[r.lower()] = r
 
 # Comments
+# need to implement //
 def t_comment(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')

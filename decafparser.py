@@ -11,38 +11,41 @@ precedence = (
 #--------------------------------A DECAF PROGRAM------------------------------------#
 #prgram : class_decl*
 def p_program(p):
-	'''program		: class_decl
-					| program class_decl'''
-	if len(p) == 3:
-		p[0] = (p[1],p[2])
-	else:
-		p[0] = p[1]
+	'''program : class_decl program
+			   | class_decl '''
+	p[0] = p[1]
+
+
 #--------------------------------CLASS DECLARATIONS---------------------------------#
 #class_decl : class id (extends id)? {class_body_decl+}
 def p_class_decl(p):
-	'''class_decl 		: CLASS ID EXTENDS ID LBRACE class_body_decl
-						| CLASS ID LBRACE class_body_decl
-						| class_decl class_body_decl
-						| class_decl RBRACE'''
-	if len(p) == 7:
-		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
-	elif len(p) == 5:
-		p[0] = (p[1],p[2],p[3],p[4])
+	'''class_decl 		: CLASS ID LPAREN EXTENDS ID RPAREN LBRACE class_body_decl RBRACE
+						| CLASS ID LBRACE class_body_decl RBRACE'''
+	if len(p) == 10:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9])
 	else:
-		p[0] = (p[1],p[2])
+		p[0] = (p[1],p[2],p[3],p[4],p[5])
+
 #class_body_decl : field_decl
 #				 | method_decl
 #			 	 | constructor_decl
 def p_class_body_decl(p):
 	'''class_body_decl	: field_decl
 						| method_decl
-						| constructor_decl'''
-	p[0] = p[1]
+						| constructor_decl
+						| class_body_decl class_body_decl'''
+	if len(p) == 3:
+		p[0] = (p[1],p[2])
+	else:
+		p[0] = p[1]
+
+
 #--------------------------------------FIELDS----------------------------------------#
 #field_decl : modifier var_decl
 def p_field_decl(p):
 	'''field_decl		: modifier var_decl'''
 	p[0] = (p[1],p[2])
+
 #modifier : (public | private)?(static)?
 def p_modifier(p):
 	'''modifier			: PUBLIC STATIC
@@ -56,7 +59,7 @@ def p_modifier(p):
 		p[0] = p[1]
 #var_decl : type variable ;
 def p_var_decl(p):
-	'''var_decl			: type variable'''
+	'''var_decl			: type variables'''
 	p[0] = (p[1],p[2])
 def p_type(p):
 	'''type				: INT
@@ -77,12 +80,11 @@ def p_variable(p):
 	'''variable			: ID'''
 	p[0] = p[1]
 
-### INHERITANCE - DO WE CHECK FOR SAME CLASS NAME? NO CLUE...
 
 #-------------------------------METHODS AND CONSTRUCTORS---------------------------#
 #method_decl : modifier (type | void) id (formals?) block
 def p_method_decl(p):
-	'''mehtod_decl		: modifier type ID LPAREN formals RPAREN block
+	'''method_decl		: modifier type ID LPAREN formals RPAREN block
 						| modifier type ID LPAREN RPAREN block
 						| modifier VOID ID LPAREN formals RPAREN block
 						| modifier VOID ID LPAREN RPAREN block'''
@@ -110,6 +112,10 @@ def p_formals(p):
 def p_formal_param(p):
 	'''formal_param		: type variable'''
 	p[0] = (p[1],p[2])
+
+
+### INHERITANCE - DO WE CHECK FOR SAME CLASS NAME? NO CLUE...
+
 #------------------------------------STATEMENTS-------------------------------------#
 #stmt : if (expr) stmt (else stmt)?
 #		 | while (expr) stmt
@@ -132,7 +138,8 @@ def p_stmt(p):
 					| CONTINUE SEMI
 					| block
 					| var_decl
-					| SEMI'''
+					| SEMI 
+					| empty '''
 	if len(p) == 10:
 		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9])
 	elif len(p) == 6:
@@ -143,15 +150,21 @@ def p_stmt(p):
 		p[0] = (p[1],p[2])
 	else:
 		p[0] = p[1]
+
 #block : { stmt* }
 def p_block(p):
-	'''block : LBRACE
-			 | block stmt
-			 | block RBRACE'''
-	if len(p) == 3:
-		p[0] = (p[1],p[2])
+	'block : LBRACE stmt_star RBRACE'
+	if len(p) == 4:
+		p[0] = (p[1],p[2],p[3])
 	else:
 		p[0] = p[1]
+
+#stmtstar : stmt*
+def p_stmt_star(p):
+	'''stmt_star : stmt stmt_star
+				 | stmt '''
+	p[0] = p[1]
+
 #----------------------------------EXPRESSIONS-------------------------------------#
 # expr : primary
 #      | assign
@@ -163,12 +176,12 @@ def p_expr(p):
 					| assign
 					| expr arith_op expr
 					| expr bool_op expr
-					| unary_op expr
-					| empty'''
+					| unary_op expr '''
 	if len(p) == 4:
 		p[0] = (p[1],p[2],p[3])
 	else:
 		p[0] = (p[1],None,None)
+
 #stmt_expr : assign
 #		   | method_invocation
 def p_stmt_expr(p):
@@ -176,6 +189,7 @@ def p_stmt_expr(p):
 				 | method_invocation
 				 | empty'''
 	p[0] = p[1]
+
 #primary : literal
 #			| this
 #			| super
@@ -200,6 +214,7 @@ def p_primary(p):
 		p[0] = (p[1],p[2],p[3])
 	else:
 		p[0] = p[1]
+
 #assign : lhs = expr
 #		   | lhs ++
 #		   | ++ lhs
@@ -210,11 +225,15 @@ def p_assign(p):
 			  | lhs PLUSPLUS
 			  | PLUSPLUS lhs
 			  | lhs MINUSMINUS
-			  | MINUSMINUS lhs'''
+			  | MINUSMINUS lhs
+			  | empty '''
 	if len(p) == 4:
 		p[0] = (p[1],p[2],p[3])
-	else:
+	elif len(p) == 2: 
 		p[0] = (p[1],p[2])
+	else:
+		p[0] = p[1]
+
 #method_invocation : field_access (arguments?)
 def p_method_invocation(p):
 	'''method_invocation : field_access LPAREN arguments RPAREN
@@ -223,6 +242,7 @@ def p_method_invocation(p):
 		p[0] = (p[1],p[2],p[3],p[4])
 	else:
 		p[0] = (p[1],p[2],p[3])
+
 #arguments : expr (, expr)*
 def p_arguments(p):
 	'''arguments : expr
@@ -231,10 +251,12 @@ def p_arguments(p):
 		p[0] = p[1], p[2], p[3]
 	else:
 		p[0] = p[1]
+
 #lhs : field_access
 def p_lhs(p):
 	'lhs : field_access'
 	p[0] = p[1]
+
 #field_access : primary . id
 #				 | id
 def p_field_access(p):
@@ -244,6 +266,7 @@ def p_field_access(p):
 		p[0] = (p[1],p[2],p[3])
 	else:
 		p[0] = p[1]
+
 #literal : int_const
 #			| float_const
 #			| string_const
@@ -258,6 +281,7 @@ def p_literal(p):
 			   | TRUE
 			   | FALSE'''
 	p[0] = p[1]
+
 ### arith_op {+, -, *, /}
 def p_arith_op(p):
 	'''arith_op : PLUS
@@ -265,6 +289,7 @@ def p_arith_op(p):
 				| TIMES
 				| DIVIDE'''
 	p[0] = p[1]
+
 ### bool_op {&&, ||, ==, !=, <, >, <=, >=}
 def p_bool_op(p):
 	'''bool_op : AND
@@ -276,6 +301,7 @@ def p_bool_op(p):
 			   | LE
 			   | GE'''
 	p[0] = p[1]
+
 ### unary_op {+, -, !}
 def p_unary_op(p):
 	'''unary_op : PLUS
