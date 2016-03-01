@@ -1,8 +1,10 @@
-class hello_world {
+class hello_world{
         public static void main() {
-        	int i;
-        	if(i=0 > 1) {
-        		i++;
-        	}
-	} 
-}
+        	Out.print("Hello World!\n");/*world
+dsf
+sdfsd
+fsdfs
+df
+        	*/
+        	//hello
+} }

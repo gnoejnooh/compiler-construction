@@ -133,7 +133,7 @@ def p_formal_param(p):
 #		 | var_decl
 #		 | ; 
 def p_stmt(p):
-	'''stmt	 		: IF LPAREN expr RPAREN stmt LPAREN ELSE stmt RPAREN
+	'''stmt	 		: IF LPAREN expr RPAREN stmt ELSE stmt
 					| IF LPAREN expr RPAREN stmt
 					| WHILE LPAREN expr RPAREN stmt
 					| FOR LPAREN stmt_expr SEMI expr SEMI stmt_expr RPAREN stmt
@@ -147,6 +147,8 @@ def p_stmt(p):
 					| empty '''
 	if len(p) == 10:
 		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9])
+	elif len(p) ==8:
+		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6],p[7])
 	elif len(p) == 6:
 		p[0] = (p[1],p[2],p[3],p[4],p[5])
 	elif len(p) == 4:

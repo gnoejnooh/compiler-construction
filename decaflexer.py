@@ -78,10 +78,12 @@ def t_ID(t):
     return t
 # Comments
 # need to implement //
-def t_comment(t):
+def t_comments(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
-
+def t_comment(t):
+	r'[//][^\n]*'
+	pass
 def t_newline(t):
 	r'\n+'
 	t.lineno += len(t.value)
