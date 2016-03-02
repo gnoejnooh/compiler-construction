@@ -1,3 +1,4 @@
+import sys
 import ply.yacc as yacc
 from decaflexer import tokens
 
@@ -320,6 +321,6 @@ def p_empty(p):
 	'empty :'
 
 def p_error(p):
-	#print ("Syntax error at '%s,%d'" % p.value, p.lineno)
-	raise SyntaxError(p)
+	sys.exit("Syntax error: Invalid grammar, line %d, input '%s'" % (p.lineno, p.value));
+
 yacc.yacc(method="LALR", debug=0)

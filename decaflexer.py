@@ -34,15 +34,17 @@ tokens = reserved + (
 	'PERIOD', 'COMMA', 'SEMI'
 )
 
-#t_ID = r'[a-zA-Z][a-zA-Z0-9_]*'
+# Data Type
 t_INT_CONST = r'\d+'    
 t_FLOAT_CONST   = r'((\d*\.\d+)(E[\+-]?\d+)?|([1-9]\d*E[\+-]?\d+))'
 t_STRING_CONST  = r'\".*?\"'
+
 # Arithmetic Operators
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
+
 # Boolean Operators
 t_AND = r'&&'
 t_OR = r'\|\|'
@@ -69,29 +71,35 @@ t_PERIOD = r'\.'
 t_COMMA = r','
 t_SEMI = r';'
 
+# Lowercase Reserved Words
 reserved_map = { }
 for r in reserved:
 	reserved_map[r.lower()] = r
+
+
 def t_ID(t):
     r'[a-zA-Z][a-zA-Z0-9_]*'
     t.type = reserved_map.get(t.value,"ID")
     return t
-# Comments
-# need to implement //
+
+# Comments (/* */) and Comment (//)
 def t_comments(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
 def t_comment(t):
 	r'[//][^\n]*'
 	pass
+
+# New Line and spacing characters
 def t_newline(t):
 	r'\n+'
-	t.lineno += len(t.value)
+	t.lexer.lineno += len(t.value)
 
 t_ignore = ' \t'
 
+# Error detection
 def t_error(t):
-	print("Illegal character %s" % t.value[0])
+	print("Input error - Illegal character %s" % t.value[0])
 	t.skip(1)
 
 lex.lex()
