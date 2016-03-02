@@ -1,14 +1,16 @@
 class hello_world{
     public static void main() {
     	//hello 2 4 a d 3
-    	scan_int("Hello World!\n");
     	while(i==0) {
     		h = 3.243;
     	}
 	}
 	public int clean() {
 		if(a >= 2) {
-			Out.print("cleaning!");
+			Out.print("asdf");
+			int.print("asdf");
+			In.scan_int();
+			In.scan_float();
 		}
 	} 
 }

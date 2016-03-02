@@ -17,11 +17,11 @@ lex INFORMATION
 reserved = (
 	'CLASS', 'EXTENDS',
 	'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE',
-	'PRINT', 'SCAN_INT', 'SCAN_FLOAT',
+	'PRINT', 'SCAN_INT', 'SCAN_FLOAT', 'Out', 'In',
 	'NEW', 'SUPER', 'THIS',
 	'PUBLIC', 'PRIVATE', 'STATIC', 'VOID',
 	'INT', 'FLOAT', 'BOOLEAN',
-	'TRUE', 'FALSE', 'NULL', 'Out',
+	'TRUE', 'FALSE', 'NULL',
 )
 
 # Tokens recognized by the lexer
@@ -78,6 +78,8 @@ t_SEMI = r';'
 reserved_map = { }
 for r in reserved:
 	if r == "Out":
+		reserved_map[r] = r
+	elif r == "In":
 		reserved_map[r] = r
 	else:
 		reserved_map[r.lower()] = r

@@ -247,7 +247,7 @@ def p_method_invocation(p):
 	'''method_invocation : field_access LPAREN arguments RPAREN
 						 | field_access LPAREN RPAREN
 						 | print_type PERIOD PRINT LPAREN arguments RPAREN
-						 | scan LPAREN RPAREN '''
+						 | In PERIOD scan LPAREN RPAREN '''
 	if len(p) == 7:
 		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
 	elif len(p) == 5:
