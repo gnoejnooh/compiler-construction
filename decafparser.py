@@ -245,22 +245,12 @@ def p_assign(p):
 #method_invocation : field_access (arguments?)
 def p_method_invocation(p):
 	'''method_invocation : field_access LPAREN arguments RPAREN
-						 | field_access LPAREN RPAREN
-						 | Out PERIOD PRINT LPAREN arguments RPAREN
-						 | PRINT LPAREN arguments RPAREN
-						 | In PERIOD scan LPAREN RPAREN
-						 | scan LPAREN RPAREN '''
-	if len(p) == 7:
-		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
-	elif len(p) == 5:
+						 | field_access LPAREN RPAREN'''
+	if len(p) == 5:
 		p[0] = (p[1],p[2],p[3],p[4])
 	else:
 		p[0] = (p[1],p[2],p[3])
 
-def p_scan(p):
-	'''scan : SCAN_INT
-			| SCAN_FLOAT'''
-	p[0] = p[1]
 
 #arguments : expr (, expr)*
 def p_arguments(p):

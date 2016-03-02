@@ -17,7 +17,6 @@ lex INFORMATION
 reserved = (
 	'CLASS', 'EXTENDS',
 	'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE',
-	'PRINT', 'SCAN_INT', 'SCAN_FLOAT', 'Out', 'In',
 	'NEW', 'SUPER', 'THIS',
 	'PUBLIC', 'PRIVATE', 'STATIC', 'VOID',
 	'INT', 'FLOAT', 'BOOLEAN',
@@ -77,12 +76,7 @@ t_SEMI = r';'
 # Lowercase Reserved Words
 reserved_map = { }
 for r in reserved:
-	if r == "Out":
-		reserved_map[r] = r
-	elif r == "In":
-		reserved_map[r] = r
-	else:
-		reserved_map[r.lower()] = r
+	reserved_map[r.lower()] = r
 
 # ID (Start only with a letter and follow any character including numbers and underscore)
 def t_ID(t):
