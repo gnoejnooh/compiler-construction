@@ -54,9 +54,11 @@ t_LT = r'<'
 t_GT = r'>'
 t_LE = r'<='
 t_GE = r'>='
+
 # Unary Operations
 t_NOT = r'!'
 t_EQUALS = r'='
+
 # Increment & Decrement
 t_PLUSPLUS = r'\+\+'
 t_MINUSMINUS = r'--'
@@ -76,7 +78,7 @@ reserved_map = { }
 for r in reserved:
 	reserved_map[r.lower()] = r
 
-
+# ID (Start only with a letter and follow any character including numbers and underscore)
 def t_ID(t):
     r'[a-zA-Z][a-zA-Z0-9_]*'
     t.type = reserved_map.get(t.value,"ID")
