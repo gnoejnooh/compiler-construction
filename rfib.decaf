@@ -1,0 +1,16 @@
+class rfib {
+	static int fib(int n) {
+		if (n <= 2) 
+			return 1;
+		else
+			return fib(n-1) + fib(n-2);
+	}
+
+	public static void main() {
+		int n;
+		n = In.scan_int();
+		Out.print("Fib = ");
+		Out.print(fib(n));
+		Out.print("\n");
+	}
+}

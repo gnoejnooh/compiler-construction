@@ -246,7 +246,7 @@ def p_assign(p):
 def p_method_invocation(p):
 	'''method_invocation : field_access LPAREN arguments RPAREN
 						 | field_access LPAREN RPAREN
-						 | print_type PERIOD PRINT LPAREN arguments RPAREN
+						 | Out PERIOD PRINT LPAREN arguments RPAREN
 						 | In PERIOD scan LPAREN RPAREN '''
 	if len(p) == 7:
 		p[0] = (p[1],p[2],p[3],p[4],p[5],p[6])
@@ -254,13 +254,6 @@ def p_method_invocation(p):
 		p[0] = (p[1],p[2],p[3],p[4])
 	else:
 		p[0] = (p[1],p[2],p[3])
-
-def p_print_type(p):
-	'''print_type : INT
-				  | FLOAT
-				  | BOOLEAN
-				  | Out'''
-	p[0] = p[1]
 
 def p_scan(p):
 	'''scan : SCAN_INT
