@@ -13,4 +13,11 @@ class rfib {
 		Out.print(fib(n));
 		Out.print("\n");
 	}
+
+	private int fib2(int n, float m) {
+		while(m == n) {
+			Out.print("What a crazy statement.\n");
+			m++;
+		}
+	}
 }

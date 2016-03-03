@@ -8,8 +8,7 @@ class hello_world{
 	public int clean() {
 		if(a >= 2) {
 			Out.print("asdf");
-			int.print("asdf");
-			In.scan_int();
+			Out.scan_int();
 			In.scan_float();
 		}
 	} 
