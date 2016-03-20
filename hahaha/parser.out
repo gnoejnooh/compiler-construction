@@ -1,0 +1,36 @@
+Created by PLY version 3.8 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    DIVIDE
+    NUMBER
+    EQUAL
+    TIMES
+    PLUS
+    MINUS
+
+Grammar
+
+Rule 0     S' -> statement
+Rule 1     statement -> NAME EQUALS expression
+Rule 2     statement -> expression
+Rule 3     empty -> <empty>
+
+Terminals, with rules where they appear
+
+DIVIDE               : 
+EQUAL                : 
+MINUS                : 
+NAME                 : 1
+NUMBER               : 
+PLUS                 : 
+TIMES                : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+EQUALS               : 1
+empty                : 
+expression           : 1 2
+statement            : 0
+

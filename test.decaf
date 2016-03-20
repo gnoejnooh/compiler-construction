@@ -1,9 +1,11 @@
-class hello_world{
+class hello_world(){
+	int x;
     public static void main() {
     	//hello 2 4 a d 3
     	while(i==0) {
     		h = 3.243;
     	}
+    	return x;
 	}
 	public int clean() {
 		if(a >= 2) {
@@ -11,5 +13,7 @@ class hello_world{
 			Out.scan_int();
 			In.scan_float();
 		}
+		return x;
 	} 
+
 }
