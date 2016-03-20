@@ -1,0 +1,11 @@
+class hello_world {
+	public static void main() {
+		Out.print("Hello World!\n");
+	}
+}
+
+class hello_world2 {
+	public static void main() {
+		Out.print("Hello World!\n");
+	}
+}
