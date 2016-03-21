@@ -24,9 +24,12 @@ precedence = (
     ('right', 'RPAREN'),
 )
 
-def init():
-    decaflexer.errorflag = False
+tree = ast.Tree()
 
+
+def init():
+	decaflexer.errorflag = False
+	
 ### DECAF Grammar
 
 # Top-level
@@ -42,7 +45,7 @@ def p_class_decl_list_empty(p):
 
 def p_class_decl(p):
 	'class_decl : CLASS ID extends LBRACE class_body_decl_list RBRACE'
-	p[0] = ast.className(p[2], None)
+	p[0] = tree.getNode_putClass(p[2])
 	print p[0]
 	pass
 def p_class_decl_error(p):
@@ -52,12 +55,12 @@ def p_class_decl_error(p):
 
 def p_extends_id(p):
     'extends : EXTENDS ID '
-    p[0] = ast.superClassNode(p[2])
+    p[0] = tree.add_node(None, p[2])
     return p[0]
     
 def p_extends_empty(p):
     'extends : '
-    p[0] = ast.classNode(None)
+    p[0] = tree.add_node(None, None)
     pass
 
 def p_class_body_decl_list_plus(p):

@@ -4,7 +4,7 @@ class hello_world {
 	}
 }
 
-class hello_world2 {
+class hello_world2 extends hello_world{
 	public static void main() {
 		Out.print("Hello World!\n");
 	}
