@@ -8,9 +8,10 @@ class Tree:
 		return self.printTree()
 		
 	def printTree(self):
+		dicTree = dict(enumerate(self.nodes))
 		result = ""
 		for i in range(len(self.nodes)):
-			result += "%s\n" % next(iter(self.nodes))
+			result += "%s\n" % dicTree.get(i)
 		return result
 		
 	def add_node(self, className, superClassName):

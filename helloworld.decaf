@@ -9,3 +9,9 @@ class hello_world2 extends hello_world{
 		Out.print("Hello World!\n");
 	}
 }
+
+class hello_world3 extends hello_world2{
+	public static void main() {
+		Out.print("Hello World!\n");
+	}
+}
