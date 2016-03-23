@@ -24,157 +24,11 @@ precedence = (
     ('right', 'RPAREN'),
 )
 
-<<<<<<< HEAD
 #tree = ast.Tree()
-=======
-tree = ast.Tree()
-
-class AST:
-    pass
-
-class PGM(AST):
-    def __init__(self, class_decl):
-        self.child = class_decl
-    def __str__(self):
-        return "%s" % self.child
-
-class CLASS_DECL_LIST(AST):
-    def __init__(self, class_decl, class_decl_list):
-        self.lchild = class_decl
-        self.rchild = class_decl_list
-    def __str__(self):
-        if(self.rchild == None):
-            self.rchild = ""
-        return "%s%s" % (self.lchild, self.rchild)
-
-class CLASS_DECL(AST):
-    Name = ""
-    def __init__(self, className, superName, body):
-        Name = className
-        self.lchild = className
-        self.mchild = superName
-        self.rchild = body
-    def __str__(self):
-        if(self.mchild == None):
-            self.mchild = "Superclass: None"
-        if(self.rchild == None):
-            self.rchild = ""
-        #else:
-        return "Class: %s\n%s\n%s\n" % (self.lchild, self.mchild, self.rchild)
-
-class EXTENDS_ID(AST):
-    def __init__(self, extendID):
-        self.child = extendID
-    def __str__(self):
-        return "Superclass: %s" % (self.child)
-
-class CLASS_BODY_DECL_LIST(AST):
-    def __init__(self, class_body_decl_list, class_body_decl):
-        self.lchild = class_body_decl_list
-        self.rchild = class_body_decl
-    def __str__(self):
-        if(self.lchild == None):
-            self.lchild = ""
-        if(self.rchild == None):
-            self.rchild = ""
-        return "%s%s" % (self.lchild, self.rchild)
-
-class CLASS_BODY_DECL_FIELD(AST):
-    def __init__(self, field_decl):
-        self.child = field_decl
-    def __str__(self):
-        if(self.child == None):
-            return ""
-        return "Fields:\n%s" % self.child
-
-class CLASS_BODY_DECL_METHOD(AST):
-    def __init__(self, method_decl):
-        self.child = method_decl
-    def __str__(self):
-        if(self.child == None):
-            return ""
-        return "Method:\n%s" % self.child
-
-class CLASS_BODY_DECL_CONSTRUCTOR(AST):
-    def __init__(self, constructor_decl):
-        self.child = constructor_decl
-    def __str__(self):
-        if(self.child == None):
-            return ""
-        return "Constructors:\n%s" % self.child
-
-class FIELD_DECL(AST):
-    def __init__(self, mod, var_decl):
-        self.lchild = mod
-        self.rchild = var_decl
-    def __str__(self):
-        return "FEILD %s%s\n" % (self.lchild, self.rchild)
-
-class CONSTRUCTOR_DECL(AST):
-    def __init__(self, mod, param, block):
-        self.lchild = mod
-        self.mchild = param
-        self.rchild = block
-    def __str__(self):
-        return "CONSTRUCTOR: %s \nConstructor Parameters: %s \nConstructor Body: %s" % (self.lchild, self.mchild, self.rchild)
-
-class MOD(AST):
-    def __init__(self, visibility_mod, storage_mod):
-        self.lchild = visibility_mod
-        self.rchild = storage_mod
-    def __str__(self):
-        return "%s%s" % (self.lchild, self.rchild)
-
-class VISIBILITY_MOD(AST):
-    def __init__(self, mod):
-        self.child = mod
-    def __str__(self):
-        if(self.child == None):
-            self.child = "private"
-        return "%s, " % self.child
-
-class STORAGE_MOD(AST):
-    def __init__(self, mod):
-        self.child = mod
-    def __str__(self):
-        if(self.child == None):
-            self.child = "instance"
-        return "%s, " % self.child
-
-class VAR_DECL(AST):
-    def __init__(self, type, var_list):
-        self.lchild = type
-        self.rchild = var_list
-    def __str__(self):
-        return "%s, %s" % (self.lchild, self.rchild)
-
-class TYPE(AST):
-    def __init__(self, type):
-        self.child = type
-    def __str__(self):
-        if(self.child != "int" and self.child != "boolean" and self.child != "float"):
-            self.child = "user(" + self.child + ")"
-        return "%s" % self.child
-
-class VAR_LIST(AST):
-    def __init__(self, var_list, var):
-        self.lchild = var_list
-        self.rchild = var
-    def __str__(self):
-        if(self.lchild == None):
-            self.lchild = ""
-        return "%s%s" % (self.lchild, self.rchild)
-
-class VAR(AST):
-    def __init__(self, var):
-        self.child = var
-    def __str__(self):
-        return "%s" % self.child
->>>>>>> e2b659782dcc7a7806f3f9b57bce672521d04468
 
 def init():
-	decaflexer.errorflag = False
-	
+    decaflexer.errorflag = False
+    
 ### DECAF Grammar
 
 # Top-level
@@ -191,8 +45,8 @@ def p_class_decl_list_empty(p):
     p[0] = CLASS_DECL_LIST(None, None)
 
 def p_class_decl(p):
-	'class_decl : CLASS ID extends LBRACE class_body_decl_list RBRACE'
-	p[0] = CLASS_DECL(p[2], p[3], p[5])
+    'class_decl : CLASS ID extends LBRACE class_body_decl_list RBRACE'
+    p[0] = CLASS_DECL(p[2], p[3], p[5])
 
 def p_class_decl_error(p):
     'class_decl : CLASS ID extends LBRACE error RBRACE'
