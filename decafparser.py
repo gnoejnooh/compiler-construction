@@ -98,7 +98,7 @@ class CLASS_BODY_DECL_CONSTRUCTOR(AST):
     def __str__(self):
         if(self.child == None):
             return ""
-        return "Constructor:\n%s" % self.child
+        return "Constructors:\n%s" % self.child
 
 class FIELD_DECL(AST):
     def __init__(self, mod, var_decl):
@@ -113,10 +113,7 @@ class CONSTRUCTOR_DECL(AST):
         self.mchild = param
         self.rchild = block
     def __str__(self):
-        return """
-        CONSTRUCTOR: %s
-        Constructor Parameters: %s
-        Constructor Body: %s""" % (self.lchild, self.mchild, self.rchild)
+        return "CONSTRUCTOR: %s \nConstructor Parameters: %s \nConstructor Body: %s" % (self.lchild, self.mchild, self.rchild)
 
 class MOD(AST):
     def __init__(self, visibility_mod, storage_mod):
