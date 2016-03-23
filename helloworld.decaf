@@ -1,18 +1,26 @@
-class hello_world {
-	boolean x;
-	public static void main() {
-		Out.print("Hello World!\n");
-	}
+class A {
+   int x;
+   A() {
+     this.x = 0;
+   }
+   int f() {
+      return this.x + 1;
+   }
+   public int g() {
+      int i;
+      i = this.f();
+      i++;
+      return i;
+   }
 }
-
-class hello_world2 extends hello_world{
-	public static void main() {
-		Out.print("Hello World!\n");
-	}
-}
-
-class hello_world3 extends hello_world2{
-	public static void main() {
-		Out.print("Hello World!\n");
-	}
+class B extends A {
+   int y;
+   public A s;
+   B() {
+     this.y = 2;
+     this.s = new A();
+   }
+   public int f(int k) {
+      return super.f() + k;
+   }
 }
