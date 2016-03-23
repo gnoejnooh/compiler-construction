@@ -1,3 +1,237 @@
+class AST:
+    pass
+
+class PGM(AST):
+    def __init__(self, class_decl):
+        self.child = class_decl
+    def __str__(self):
+        return "%s" % self.child
+
+class CLASS_DECL_LIST(AST):
+    def __init__(self, class_decl, class_decl_list):
+        self.lchild = class_decl
+        self.rchild = class_decl_list
+    def __str__(self):
+        if(self.rchild == None):
+            self.rchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class CLASS_DECL(AST):
+    Name = ""
+    def __init__(self, className, superName, body):
+        Name = className
+        self.lchild = className
+        self.mchild = superName
+        self.rchild = body
+    def __str__(self):
+        if(self.mchild == None):
+            self.mchild = "Superclass:"
+        if(self.rchild == None):
+            self.rchild = ""
+        #else:
+        return "Class Name: %s\n%s\n%s\n" % (self.lchild, self.mchild, self.rchild)
+
+class EXTENDS_ID(AST):
+    def __init__(self, extendID):
+        self.child = extendID
+    def __str__(self):
+        return "Superclass Name: %s" % (self.child)
+
+class CLASS_BODY_DECL_LIST(AST):
+    def __init__(self, class_body_decl_list, class_body_decl):
+        self.lchild = class_body_decl_list
+        self.rchild = class_body_decl
+    def __str__(self):
+        if(self.lchild == None):
+            self.lchild = ""
+        if(self.rchild == None):
+            self.rchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class CLASS_BODY_DECL_FIELD(AST):
+    def __init__(self, field_decl):
+        self.child = field_decl
+    def __str__(self):
+        if(self.child == None):
+            return ""
+        return "Fields:\n%s" % self.child
+
+class CLASS_BODY_DECL_METHOD(AST):
+    def __init__(self, method_decl):
+        self.child = method_decl
+    def __str__(self):
+        if(self.child == None):
+            return ""
+        return "Method:\n%s" % self.child
+
+class CLASS_BODY_DECL_CONSTRUCTOR(AST):
+    def __init__(self, constructor_decl):
+        self.child = constructor_decl
+    def __str__(self):
+        if(self.child == None):
+            return ""
+        return "Constructor:\n%s" % self.child
+
+class FIELD_DECL(AST):
+    def __init__(self, mod, var_decl):
+        self.lchild = mod
+        self.rchild = var_decl
+    def __str__(self):
+        return "FEILD %s, %s%s\n" % (self.rchild.rchild, self.lchild, self.rchild.lchild)
+
+class METHOD_DECL(AST):
+	def __init__(self, mod, type, ID, param, block):
+		self.llchild = mod
+		self.lchild = type
+		self.mchild = ID
+		self.rchild = param
+		self.rrchild = block
+	def __str__(self):
+		return """METHOD %s, %s%s
+Method Parameters: %s
+Variable Table:
+Method Body: %s\n""" % (self.mchild, self.llchild, self.lchild, self.rchild, self.rrchild)
+
+class CONSTRUCTOR_DECL(AST):
+    def __init__(self, mod, param, block):
+        self.lchild = mod.lchild
+        self.mchild = param
+        self.rchild = block
+    def __str__(self):
+        if(self.mchild == None):
+            self.mchild = ""
+        if(self.rchild == None):
+            self.rchild = ""
+        str = """CONSTRUCTOR: %s
+Constructor Parameters: %s
+Constructor Body: %s\n""" % (self.lchild, self.mchild, self.rchild)
+        return str
+
+class MOD(AST):
+    def __init__(self, visibility_mod, storage_mod):
+        self.lchild = visibility_mod
+        self.rchild = storage_mod
+    def __str__(self):
+        return "%s, %s, " % (self.lchild, self.rchild)
+
+class VISIBILITY_MOD(AST):
+    def __init__(self, mod):
+        self.child = mod
+    def __str__(self):
+        if(self.child == None):
+            self.child = "private"
+        return "%s" % self.child
+
+class STORAGE_MOD(AST):
+    def __init__(self, mod):
+        self.child = mod
+    def __str__(self):
+        if(self.child == None):
+            self.child = "instance"
+        return "%s" % self.child
+
+class VAR_DECL(AST):
+    def __init__(self, type, var_list):
+        self.lchild = type
+        self.rchild = var_list
+    def __str__(self):
+    	if(self.rchild == None):
+    		return "%s" % self.lchild
+        return "%s, %s" % (self.lchild, self.rchild)
+
+class TYPE(AST):
+    def __init__(self, type):
+        self.child = type
+    def __str__(self):
+        if(self.child != "int" and self.child != "boolean" and self.child != "float"):
+            self.child = "user(" + self.child + ")"
+        return "%s" % self.child
+
+class VAR_LIST(AST):
+    def __init__(self, var_list, var):
+        self.lchild = var_list
+        self.rchild = var
+    def __str__(self):
+        if(self.lchild == None):
+            self.lchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class VAR(AST):
+    def __init__(self, var):
+        self.child = var
+    def __str__(self):
+        return "%s" % self.child
+
+class BLOCK(AST):
+    def __init__(self, stmt_list):
+        self.child = stmt_list
+    def __str__(self):
+        return "\nBlock([\n%s\n])" % self.child
+
+class STMT_LIST(AST):
+    def __init__(self, stmt_list, stmt):
+        self.lchild = stmt_list
+        self.rchild = stmt
+    def __str__(self):
+        if self.lchild == None:
+            self.lchild = ""
+        if self.rchild == None:
+            self.rchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class STMT_STMT_EXPR(AST):
+    def __init__(self, expr):
+        self.child = expr
+    def __str__(self):
+        return "%s" % self.child
+
+class EXPR(AST):
+    def __init__(self, assign_basic):
+        self.child = assign_basic
+    def __str__(self):
+        return "Expr( %s )" % self.child
+
+class STMT_EXPR(AST):
+    def __init__(self, expr):
+        self.child = expr
+    def __str__(self):
+        return "%s" % (self.child)
+
+class ASSIGN(AST):
+    def __init__(self, lhs, expr):
+        self.lchild = lhs
+        self.rchild = expr
+    def __str__(self):
+        return "Assign(%s, %s)" % (self.lchild, self.rchild)
+
+class LHS(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "%s" % self.child
+
+class FIELD_ACCESS(AST):
+    def __init__(self, primary, ID):
+        self.lchild = primary
+        self.rchild = ID
+    def __str__(self):
+        return "Field-access(%s, %s)" % (self.lchild, self.rchild)
+
+class PRIMARY(AST):
+    def __init__(self, primary):
+        self.child = primary
+    def __str__(self):
+        return "%s" % self.child
+
+class LITERAL_INT_CONST(AST):
+    def __init__(self, int_const):
+        self.child = int_const
+    def __str__(self):
+        return "Constant(Integer-constant(%s))" % self.child
+
+
+
+
 class Tree:
 	nodes = []
 	
