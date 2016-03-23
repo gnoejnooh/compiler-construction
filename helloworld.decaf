@@ -1,4 +1,5 @@
 class hello_world {
+	boolean x;
 	public static void main() {
 		Out.print("Hello World!\n");
 	}

@@ -18,6 +18,11 @@ class Tree:
 		tmpNode = Node(className, superClassName)
 		self.nodes.append(tmpNode)
 		return tmpNode
+
+	def add_field(self, field):
+		tmpNode = Node.fields.append(field)
+		self.nodes.append(tmpNode)
+		return tmpNode
 		
 	def getNode_putClass(self, className):
 		found_node = self.find_node_by_class(None)
@@ -40,18 +45,29 @@ class Node:
 	"""
 	className = 'None'
 	superClassName = 'None'
+	fields = []
 	constructors = []
 	methods = []
 	
-	def __init__(self, className, superClassName, constructors = None, methods = None):
+	def __init__(self, className, superClassName, fields = None, constructors = None, methods = None):
 		self.className = className
 		self.superClassName = superClassName
+		self.fields = []
+		self.constructors = []
+		self.methods = []
 	
 	def __str__(self):
 		return self.printNode()
 		
 	def printNode(self):
-		result = "Class: %s\nSuper Class: %s" % (self.className, self.superClassName)
+		result = "Class: %s\n" % (self.className)
+		result += "Super Class: %s\n" % (self.superClassName)
+		result += "Fields:\n"
+		for i in range(0, len(self.fields)):
+			result += "FIELD %s" % fields[i]
+		result += "Constructors:\n"
+		result += "Methods:\n"
+		#result = "Class: %s\nSuper Class: %s" % (self.className, self.superClassName)
 		return result
 		
 	def setSuperClass(self, superClassName):
@@ -75,6 +91,24 @@ class className(Node):
 	def __init__(self, className, superClassName):
 		self.className = className
 		self.superClassName = superClassName
+
+class fields(Node):
+	fields = []
+	def __init__(self, fields):
+		self.fields = []
+	def add_field(self, field):
+		tmpNode = field
+		self.feilds.append(tmpNode)
+		return tmpNode
+
+class field(Node):
+	def __init__(self, fieldID, name, fieldClass, visibility, applicability, fieldType):
+		self.id = fieldID
+		self.name = name
+		self.fieldClass = fieldClass
+		self.visibility = visibility
+		self.applicability = applicability
+		self.fieldType = fieldType
 			
 class constructors(Node):
 	def __init__(self, constructors, constructor):

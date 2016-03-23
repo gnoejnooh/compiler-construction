@@ -26,6 +26,105 @@ precedence = (
 
 tree = ast.Tree()
 
+class AST:
+    pass
+class PGM(AST):
+    def __init__(self, class_decl):
+        self.child = class_decl
+    def __str__(self):
+        return "%s" % self.child
+class CLASS_DECL_LIST(AST):
+    def __init__(self, class_decl, class_decl_list):
+        self.lchild = class_decl
+        self.rchild = class_decl_list
+    def __str__(self):
+        if(self.rchild == None):
+            self.rchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class CLASS_DECL(AST):
+    Name = ""
+    def __init__(self, className, superName, body):
+        Name = className
+        self.lchild = className
+        self.mchild = superName
+        self.rchild = body
+    def __str__(self):
+        if(self.mchild == None):
+            self.mchild = "Superclass: None"
+        if(self.rchild == None):
+            self.rchild = ""
+        #else:
+
+        return "Class: %s\n%s\n%s\n" % (self.lchild, self.mchild, self.rchild)
+
+class EXTENDS_ID(AST):
+    def __init__(self, extendID):
+        self.child = extendID
+    def __str__(self):
+        return "Superclass: %s" % (self.child)
+
+class CLASS_BODY_DECL_LIST(AST):
+    def __init__(self, class_body_decl_list, class_body_decl):
+        self.lchild = class_body_decl_list
+        self.rchild = class_body_decl
+    def __str__(self):
+        if(self.lchild == None):
+            self.lchild = ""
+        if(self.rchild == None):
+            self.rchild = ""
+        return "%s%s" % (self.lchild, self.rchild)
+
+class CLASS_BODY_DECL_FIELD(AST):
+    def __init__(self, field_decl):
+        self.child = field_decl
+    def __str__(self):
+        return "Fields:\n%s" % self.child
+
+class FIELD_DECL(AST):
+    def __init__(self, mode, var_decl):
+        self.lchild = mode
+        self.rchild = var_decl
+    def __str__(self):
+        return "FEILD %s%s\n" % (self.lchild, self.rchild)
+
+class MOD(AST):
+    def __init__(self, visibility_mod, storage_mod):
+        self.lchild = visibility_mod
+        self.rchild = storage_mod
+    def __str__(self):
+        return "%s%s" % (self.lchild, self.rchild)
+
+class VISIBILITY_MOD(AST):
+    def __init__(self, mod):
+        self.child = mod
+    def __str__(self):
+        if(self.child == None):
+            self.child = "private"
+        return "%s, " % self.child
+
+class STORAGE_MOD(AST):
+    def __init__(self, mod):
+        self.child = mod
+    def __str__(self):
+        if(self.child == None):
+            self.child = "instance"
+        return "%s, " % self.child
+
+class VAR_DECL(AST):
+    def __init__(self, type, var_list):
+        self.lchild = type
+        self.rchild = var_list
+    def __str__(self):
+        return "%s, %s" % (self.lchild, self.rchild)
+
+class TYPE(AST):
+    def __init__(self, type):
+        self.child = type
+    def __str__(self):
+        if(self.child != "int" and self.child != "boolean" and self.child != "float"):
+            self.child = "user(" + self.child + ")"
+        return "%s" % self.child
 
 def init():
 	decaflexer.errorflag = False
@@ -35,19 +134,22 @@ def init():
 # Top-level
 def p_pgm(p):
     'pgm : class_decl_list'
-    pass
+    p[0] = PGM(p[1])
+    #pass
 
 def p_class_decl_list_nonempty(p):
     'class_decl_list : class_decl class_decl_list'
+    p[0] = CLASS_DECL_LIST(p[1], p[2])
 def p_class_decl_list_empty(p):
-    'class_decl_list : '    
+    'class_decl_list : '
     pass
 
 def p_class_decl(p):
 	'class_decl : CLASS ID extends LBRACE class_body_decl_list RBRACE'
-	p[0] = tree.getNode_putClass(p[2])
-	print p[0]
-	pass
+	p[0] = CLASS_DECL(p[2], p[3], p[5])
+    #p[0] = tree.getNode_putClass(p[2])
+	#print p[0]
+	#pass
 def p_class_decl_error(p):
     'class_decl : CLASS ID extends LBRACE error RBRACE'
     # error in class declaration; skip to next class decl.
@@ -55,24 +157,28 @@ def p_class_decl_error(p):
 
 def p_extends_id(p):
     'extends : EXTENDS ID '
-    p[0] = tree.add_node(None, p[2])
-    return p[0]
+    p[0] = EXTENDS_ID(p[2])
+    #p[0] = tree.add_node(None, p[2])
+    #return p[0]
     
 def p_extends_empty(p):
     'extends : '
-    p[0] = tree.add_node(None, None)
+    #p[0] = tree.add_node(None, None)
     pass
 
 def p_class_body_decl_list_plus(p):
     'class_body_decl_list : class_body_decl_list class_body_decl'
-    pass
+    p[0] = CLASS_BODY_DECL_LIST(p[1], p[2])
+    #pass
 def p_class_body_decl_list_single(p):
     'class_body_decl_list : class_body_decl'
-    pass
+    p[0] = CLASS_BODY_DECL_LIST(None, p[1])
+    #pass
 
 def p_class_body_decl_field(p):
     'class_body_decl : field_decl'
-    pass
+    p[0] = CLASS_BODY_DECL_FIELD(p[1])
+    #pass
 def p_class_body_decl_method(p):
     'class_body_decl : method_decl'
     pass
@@ -85,6 +191,8 @@ def p_class_body_decl_constructor(p):
 
 def p_field_decl(p):
     'field_decl : mod var_decl'
+    p[0] = FIELD_DECL(p[1], p[2])
+    #p[0] = tree.add_field(p[1], p[2])
     pass
 
 def p_method_decl_void(p):
@@ -101,41 +209,52 @@ def p_constructor_decl(p):
 
 def p_mod(p):
     'mod : visibility_mod storage_mod'
-    pass
+    p[0] = MOD(p[1], p[2])
+    #pass
 
 def p_visibility_mod_pub(p):
     'visibility_mod : PUBLIC'
-    pass
+    p[0] = VISIBILITY_MOD(p[1])
+    #pass
 def p_visibility_mod_priv(p):
     'visibility_mod : PRIVATE'
-    pass
+    p[0] = VISIBILITY_MOD(p[1])
+    #pass
 def p_visibility_mod_empty(p):
     'visibility_mod : '
-    pass
+    p[0] = VISIBILITY_MOD(None)
+    #pass
 
 def p_storage_mod_static(p):
     'storage_mod : STATIC'
-    pass
+    p[0] = STORAGE_MOD(p[1])
+    #pass
 def p_storage_mod_empty(p):
     'storage_mod : '
-    pass
+    p[0] = STORAGE_MOD(None)
+    #pass
 
 def p_var_decl(p):
     'var_decl : type var_list SEMICOLON'
-    pass
+    p[0] = VAR_DECL(p[1], p[2])
+    #pass
 
 def p_type_int(p):
     'type :  INT'
-    pass
+    p[0] = TYPE(p[1])
+    #pass
 def p_type_bool(p):
     'type :  BOOLEAN'
-    pass
+    p[0] = TYPE(p[1])
+    #pass
 def p_type_float(p):
     'type :  FLOAT'
-    pass
+    p[0] = TYPE(p[1])
+    #pass
 def p_type_id(p):
     'type :  ID'
-    pass
+    p[0] = TYPE(p[1])
+    #pass
 
 def p_var_list_plus(p):
     'var_list : var_list COMMA var'
@@ -393,7 +512,7 @@ def from_file(filename):
     try:
         with open(filename, "rU") as f:
             init()
-            parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=None)
+            print parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=None)
         return not decaflexer.errorflag
     except IOError as e:
         print "I/O error: %s: %s" % (filename, e.strerror)
