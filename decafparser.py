@@ -25,9 +25,9 @@ precedence = (
 )
 
 class count:
-	const_cnt = 0
-	method_cnt = 0
-	field_cnt = 0
+    const_cnt = 0
+    method_cnt = 0
+    field_cnt = 0
 
 def init():
     decaflexer.errorflag = False
@@ -102,10 +102,10 @@ def p_method_decl_nonvoid(p):
     p[0] = METHOD_DECL(count.method_cnt, p[1], p[2], p[3], p[5], p[7])
 
 def p_constructor_decl(p):
-	'constructor_decl : mod ID LPAREN param_list_opt RPAREN block'
-	count.const_cnt += 1
-	p[0] = CONSTRUCTOR_DECL(count.const_cnt, p[1], p[4], p[6])
-	
+    'constructor_decl : mod ID LPAREN param_list_opt RPAREN block'
+    count.const_cnt += 1
+    p[0] = CONSTRUCTOR_DECL(count.const_cnt, p[1], p[4], p[6])
+    
 def p_mod(p):
     'mod : visibility_mod storage_mod'
     p[0] = MOD(p[1], p[2])
