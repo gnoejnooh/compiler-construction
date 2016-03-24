@@ -115,6 +115,7 @@ class CONSTRUCTOR_DECL(AST):
             self.rchild = ""
         str = """CONSTRUCTOR: %d, %s
 Constructor Parameters: %s
+Variable Table:
 Constructor Body: %s\n""" % (self.number, self.lchild, self.mchild, self.rchild)
         return str
 
@@ -201,7 +202,7 @@ class BLOCK(AST):
     def __init__(self, stmt_list):
         self.child = stmt_list
     def __str__(self):
-        return "\nBlock([\n%s\n])" % self.child
+        return "\nBlock([\n%s\n)]" % self.child
 
 class STMT_LIST(AST):
     def __init__(self, stmt_list, stmt):
@@ -258,7 +259,7 @@ class STMT_STMT_EXPR(AST):
     def __init__(self, expr):
         self.child = expr
     def __str__(self):
-        return "%s" % self.child
+        return "Expr( %s )" % self.child
 
 class STMT_BREAK(AST):
     def __init__(self, BREAK):
@@ -402,13 +403,15 @@ class METHOD_INVOCATION(AST):
         self.mchild = field_access.rchild
         self.rchild = args_opt
     def __str__(self):
-        return "Method-call(%s, %s, %s)" % (self.lchild, self.mchild, self.rchild)
+        if self.rchild == None:
+            self.rchild = ""
+        return "Method-call(%s, %s, [%s])" % (self.lchild, self.mchild, self.rchild)
 
 class EXPR_BASIC(AST):
     def __init__(self, basic):
         self.child = basic
     def __str__(self):
-        return "Expr( %s )" % self.child
+        return "%s" % self.child
 
 class EXPR_BINOP(AST):
     def __init__(self, expr_prev, op, expr_next):

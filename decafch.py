@@ -37,6 +37,7 @@ def main(argv=None):
         if decafparser.from_file(infile):
         	# call ast.py and print ast parse tree
             print "\nNo Syntax Errors found"
+            print decafparser.count.data
 			#print "\nStored Tree\n%s \nNo Syntax Errors found" % decafparser.tree
         else:
             print "Failure: there were errors."

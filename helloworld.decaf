@@ -1,4 +1,4 @@
-class A {
+--class A {
    int x;
    A() {
      this.x = 0;
@@ -9,9 +9,6 @@ class A {
    public int g() {
       int i;
       i = this.f();
-      if(i > 1) {
-      	i++;
-      }
       i++;
       return i;
    }
