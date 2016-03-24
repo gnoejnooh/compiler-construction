@@ -417,17 +417,96 @@ class EXPR_BINOP(AST):
         self.rchild = expr_next
     def __str__(self):
         # binary conversion
+        if self.mchild == "+":
+            self.mchild = "add"
+        elif self.mchild == "-":
+            self.mchild = "sub"
+        elif self.mchild == "*":
+            self.mchild = "mul"
+        elif self.mchild == "/":
+            self.mchild = "div"
+        elif self.mchild == "&&":
+            self.mchild = "and"
+        elif self.mchild == "\|\|":
+            self.mchild = "or"
+        elif self.mchild == "==":
+            self.mchild = "eq"
+        elif self.mchild == "!=":
+            self.mchild = "neq"
+        elif self.mchild == "<":
+            self.mchild = "le"
+        elif self.mchild == "<=":
+            self.mchild = "leq"
+        elif self.mchild == ">":
+            self.mchild = "gt"
+        elif self.mchild == ">=":
+            self.mchild = "geq"
+        else:
+            self.mchild = None
         return "Binary(%s, %s, %s)" % (self.mchild, self.lchild, self.rchild)
 
-class STMT_EXPR(AST):
-    def __init__(self, expr):
-        self.child = expr
+class EXPR_UNOP(AST):
+    def __init__(self, op, expr):
+        self.lchild = op
+        self.rchild = expr
     def __str__(self):
-        return "%s" % (self.child)
+        if self.lchild == '+':
+            self.lchild = ""
+        if self.lchild == '!':
+            pass
+        return "%s%s" % (self.lchild, self.rchild)
 
-class ASSIGN(AST):
+class ASSIGN_EQUALS(AST):
     def __init__(self, lhs, expr):
         self.lchild = lhs
         self.rchild = expr
     def __str__(self):
         return "Assign(%s, %s)" % (self.lchild, self.rchild)
+
+class ASSIGN_POST_INC(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "Auto(%s, inc, post)" % self.child
+
+class ASSIGN_PRE_INC(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "Auto(%s, inc, pre)" % self.child
+
+class ASSIGN_POST_DEC(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "Auto(%s, dec, post)" % self.child
+
+class ASSIGN_PRE_DEC(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "Auto(%s, dec, pre)" % self.child
+
+class STMT_EXPR(AST):
+    def __init__(self, expr):
+        self.child = expr
+    def __str__(self):
+        if self.child == None:
+            self.child = ""
+        return "%s" % (self.child)
+
+class STMT_EXPR_OPT(AST):
+    def __init__(self, stmt_expr):
+        self.child = stmt_expr
+    def __str__(self):
+        if self.child == None:
+            self.child = ""
+        return "%s" % (self.child)
+
+class EXPR_OPT(AST):
+    def __init__(self, expr):
+        self.child = expr
+    def __str__(self):
+        if self.child == None:
+            self.child = ""
+        return "%s" % (self.child)

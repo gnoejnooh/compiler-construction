@@ -360,30 +360,34 @@ def p_expr_binop(p):
             | expr AND expr
             | expr OR expr
     '''
-    pass
+    p[0] = EXPR_BINOP(p[1], p[2], p[3])
+
 def p_expr_unop(p):
     '''expr : PLUS expr %prec UMINUS
             | MINUS expr %prec UMINUS
             | NOT expr'''
-    pass
+    p[0] = EXPR_UNOP(p[1], p[2])
 
 def p_assign_equals(p):
     'assign : lhs ASSIGN expr'
-    p[0] = ASSIGN(p[1], p[3])
-    pass
+    p[0] = ASSIGN_EQUALS(p[1], p[3])
+
 def p_assign_post_inc(p):
     'assign : lhs INC'
-    pass
+    p[0] = ASSIGN_POST_INC(p[1])
+
 def p_assign_pre_inc(p):
     'assign : INC lhs'
-    pass
+    p[0] = ASSIGN_PRE_INC(p[2])
+
 def p_assign_post_dec(p):
     'assign : lhs DEC'
-    pass
+    p[0] = ASSIGN_POST_DEC(p[1])
+
 def p_assign_pre_dec(p):
     'assign : DEC lhs'
-    pass
-
+    p[0] = ASSIGN_PRE_DEC(p[2])
+##### Arrya ANHE #####
 def p_new_array(p):
     'new_array : NEW type dim_expr_plus dim_star'
     pass
@@ -405,26 +409,27 @@ def p_dim_star(p):
 def p_dim_star_empty(p):
     'dim_star : '
     pass
-
+########################
 def p_stmt_expr(p):
     '''stmt_expr : assign
                  | method_invocation'''
     p[0] = STMT_EXPR(p[1])
-    pass
 
 def p_stmt_expr_opt(p):
     'stmt_expr_opt : stmt_expr'
-    pass
+    p[0] = STMT_EXPR_OPT(p[1])
+
 def p_stmt_expr_empty(p):
     'stmt_expr_opt : '
-    pass
+    p[0] = STMT_EXPR_OPT(None)
 
 def p_expr_opt(p):
     'expr_opt : expr'
-    pass
+    p[0] = EXPR_OPT(p[1])
+
 def p_expr_empty(p):
     'expr_opt : '
-    pass
+    p[0] = EXPR_OPT(None)
 
 
 def p_error(p):
