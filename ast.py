@@ -162,6 +162,30 @@ class VAR(AST):
     def __str__(self):
         return "%s" % self.child
 
+class PARAM_LIST_OPT(AST):
+	def __init__(self, param_list):
+		self.child = param_list
+	def __str__(self):
+		return "%s" % self.child
+
+class PARAM_LIST(AST):
+	def __init__(self, param_list, param):
+		self.lchild = param_list
+		self.rchild = param
+	def __str__(self):
+		if self.lchild == None:
+			self.lchild = ""
+		if self.rchild == None:
+			self.rchild = ""
+		return "%s%s" % (self.lchild, self.rchild)
+
+class PARAM(AST):
+	def __init__(self, type, ID):
+		self.lchild = type
+		self.rchild = ID
+	def __str__(self):
+		return "%s %s" % (self.lchild, self.rchild)
+
 class BLOCK(AST):
     def __init__(self, stmt_list):
         self.child = stmt_list
@@ -179,11 +203,195 @@ class STMT_LIST(AST):
             self.rchild = ""
         return "%s%s" % (self.lchild, self.rchild)
 
+class STMT_IF(AST):
+	def __init__(self, IF, expr, ifStmt, ELSE, elseStmt):
+		self.llchild = IF
+		self.lchild = expr
+		self.mchild = ifStmt
+		self.rchild = ELSE
+		self.rrchild = elseStmt
+	def __str__(self):
+		if self.rchild == None:
+			self.rchild = self.rrchild = ""
+		else:
+			self.rchild = ", " + self.rchild
+			self.rrchild = ", " + self.rrchild
+		return "%s(%s), %s%s%s)" % (self.llchild, self.lchild, self.mchild, self.rchild, self.rrchild)
+
+class STMT_WHILE(AST):
+	def __init__(self, WHILE, expr, stmt):
+		self.lchild = WHILE
+		self.mchild = expr
+		self.rchild = stmt
+	def __str__(self):
+		return "%s(%s), %s" % (self.lchild, self.mchild, self.rchild)
+
+class STMT_FOR(AST):
+	def __init__(self, FOR, stmt_expr_opt, expr_opt, opt, stmt):
+		self.llchild = FOR
+		self.lchild = stmt_expr_opt
+		self.mchild = expr_opt
+		self.rchild = opt
+		self.rrchild = stmt
+	def __str__(self):
+		return "%s(%s, %s, %s), %s" % (self.llchild, self,lchild, self.mchild, self.rchild, self.rrchild)
+
+class STMT_RETURN(AST):
+	def __init__(self, RETURN, expr_opt):
+		self.lchild = RETURN
+		self.rchild = expr_opt
+	def __str__(self):
+		return "%s(%s)" % (self.lchild, self.rchild)
+
 class STMT_STMT_EXPR(AST):
     def __init__(self, expr):
         self.child = expr
     def __str__(self):
         return "%s" % self.child
+
+class STMT_BREAK(AST):
+	def __init__(self, BREAK):
+		self.child = BREAK
+	def __str__(self):
+		return "%s" % self.child
+
+class STMT_CONTINUE(AST):
+	def __init__(self, CONTINUE):
+		self.child = CONTINUE
+	def __str__(self):
+		return "%s" % self.child
+
+class STMT_BLOCK(AST):
+	def __init__(self, block):
+		self.child = block
+	def __str__(self):
+		return "%s" % self.child
+
+class STMT_VAR_DECL(AST):
+	def __init__(self, var_decl):
+		self.child = var_decl
+	def __str__(self):
+		return "%s" % self.child
+
+class LITERAL_INT_CONST(AST):
+    def __init__(self, int_const):
+        self.child = int_const
+    def __str__(self):
+        return "Constant(Integer-constant(%s))" % self.child
+
+class LITERAL_FLOAT_CONST(AST):
+	def __init__(self, float_const):
+		self.child = float_const
+	def __str__(self):
+		return "Constant(Float-constant(%s))" % self.child
+
+class LITERAL_STRING_CONST(AST):
+	def __init__(self, string_const):
+		self.child = string_const
+	def __str__(self):
+		return "Constant(String-constant(%s))" % self.child
+
+class LITERAL_NULL(AST):
+	def __init__(self, NULL):
+		self.child = NULL
+	def __str__(self):
+		return "%s" % self.child
+
+class LITERAL_TRUE(AST):
+	def __init__(self, TRUE):
+		self.child = TRUE
+	def __str__(self):
+		return "%s" % self.child
+
+class LITERAL_FALSE(AST):
+	def __init__(self, FALSE):
+		self.child = FALSE
+	def __str__(self):
+		return "%s" % self.child		
+
+class PRIMARY_LITERAL(AST):
+    def __init__(self, primary):
+        self.child = primary
+    def __str__(self):
+        return "%s" % self.child
+
+class PRIMARY_THIS(AST):
+    def __init__(self, primary):
+        self.child = primary
+    def __str__(self):
+        return "%s" % self.child
+
+class PRIMARY_SUPER(AST):
+    def __init__(self, primary):
+        self.child = primary
+    def __str__(self):
+        return "%s" % self.child
+
+class PRIMARY_NEWOBJ(AST):
+	def __init__(self, ID, args_opt):
+		self.lchild = ID
+		self.rchild = args_opt
+	def __str__(self):
+		if self.rchild == None:
+			self.rchild = ""
+		return "New-object(%s, [%s])" % (self.lchild, self.rchild)
+
+class PRIMARY_LHS(AST):
+	def __init__(self, lhs):
+		self.child = lhs
+	def __str__(self):
+		return "%s" % self.child
+
+class PRIMARY_METHOD_INVOCATION(AST):
+	def __init__(self, method):
+		self.child = method
+	def __str__(self):
+		return "%s" % self.child
+
+class ARGS_OPT(AST):
+	def __init__(self, args_opt):
+		self.child = args_opt
+	def __str__(self):
+		return "%s" % self.child
+
+class ARGS_PLUS(AST):
+	def __init__(self, arg_plus, expr):
+		self.lchild = arg_plus
+		self.rchild = expr
+	def __str__(self):
+		if self.lchild == None:
+			self.lchild = ""
+		return "%s%s" % (self.lchild, self.rchild)
+
+class LHS(AST):
+    def __init__(self, lhs):
+        self.child = lhs
+    def __str__(self):
+        return "%s" % self.child
+
+class FIELD_ACCESS(AST):
+    def __init__(self, primary, ID):
+        self.lchild = primary
+        self.rchild = ID
+    def __str__(self):
+    	if self.lchild == None:
+    		self.lchild = "this"
+        return "Field-access(%s, %s)" % (self.lchild, self.rchild)
+
+class ARRAY_ACCESS(AST):
+	def __init__(self, primary, expr):
+		self.lchild = primary
+		self.rchild = expr
+	def __str__(self):
+		return "Array-access(%s, %s)" % (self.lchild, self.rchild)
+
+class METHOD_INVOCATION(AST):
+	def __init__(self, field_access, args_opt):
+		self.lchild = field_access.lchild
+		self.mchild = field_access.rchild
+		self.rchild = args_opt
+	def __str__(self):
+		return "Method-call(%s, %s, %s)" % (self.lchild, self.mchild, self.rchild)
 
 class EXPR(AST):
     def __init__(self, assign_basic):
@@ -204,30 +412,13 @@ class ASSIGN(AST):
     def __str__(self):
         return "Assign(%s, %s)" % (self.lchild, self.rchild)
 
-class LHS(AST):
-    def __init__(self, lhs):
-        self.child = lhs
-    def __str__(self):
-        return "%s" % self.child
 
-class FIELD_ACCESS(AST):
-    def __init__(self, primary, ID):
-        self.lchild = primary
-        self.rchild = ID
-    def __str__(self):
-        return "Field-access(%s, %s)" % (self.lchild, self.rchild)
 
-class PRIMARY(AST):
-    def __init__(self, primary):
-        self.child = primary
-    def __str__(self):
-        return "%s" % self.child
 
-class LITERAL_INT_CONST(AST):
-    def __init__(self, int_const):
-        self.child = int_const
-    def __str__(self):
-        return "Constant(Integer-constant(%s))" % self.child
+
+
+
+
 
 
 
