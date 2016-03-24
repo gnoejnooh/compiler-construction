@@ -404,11 +404,20 @@ class METHOD_INVOCATION(AST):
 	def __str__(self):
 		return "Method-call(%s, %s, %s)" % (self.lchild, self.mchild, self.rchild)
 
-class EXPR(AST):
-    def __init__(self, assign_basic):
-        self.child = assign_basic
+class EXPR_BASIC(AST):
+    def __init__(self, basic):
+        self.child = basic
     def __str__(self):
         return "Expr( %s )" % self.child
+
+class EXPR_BINOP(AST):
+    def __init__(self, expr_prev, op, expr_next):
+        self.lchild = expr_prev
+        self.mchild = op
+        self.rchild = expr_next
+    def __str__(self):
+    	# binary conversion
+        return "Binary(%s, %s, %s)" % (self.mchild, self.lchild, self.rchild)
 
 class STMT_EXPR(AST):
     def __init__(self, expr):

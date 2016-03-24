@@ -344,7 +344,7 @@ def p_expr_basic(p):
     '''expr : primary
             | assign
             | new_array'''
-    p[0] = EXPR(p[1])
+    p[0] = EXPR_BASIC(p[1])
     #pass
 def p_expr_binop(p):
     '''expr : expr PLUS expr
