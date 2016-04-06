@@ -1,0 +1,11 @@
+class A {
+   int x;
+   A() {
+     this.x = 0;
+   }
+   int f() {
+      int y;
+      y = -null;
+      return this.x + 1;
+   }
+}

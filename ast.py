@@ -17,10 +17,8 @@ def addtotable(table, key, value):
 
 def print_ast():
     for cid in classtable:
-        print cid
-        print classtable[cid]
-        #c = classtable[cid]
-        #c.printout()
+        c = classtable[cid]
+        c.printout()
     print "-----------------------------------------------------------------------------"
     
 
@@ -280,7 +278,6 @@ class IfStmt(Stmt):
         self.condition = condition
         self.thenpart = thenpart
         self.elsepart = elsepart
-        #typecheck.eval_IfStmt(condition, thenpart, elsepart, lines)
 
     def printout(self):
         print "If(",
@@ -418,10 +415,12 @@ class ConstantExpr(Expr):
             s = "False"
         return "Constant({0})".format(s)
 
+# Type id not declared yet.
 class VarExpr(Expr):
     def __init__(self, var, lines):
         self.lines = lines
         self.var = var
+        self.type = self.var.type
     def __repr__(self):
         return "Variable(%d)"%self.var.id
 
@@ -430,6 +429,10 @@ class UnaryExpr(Expr):
         self.lines = lines
         self.uop = uop
         self.arg = expr
+        if uop == 'uminus':
+            self.type = typecheck.eval_number(expr, lines)
+        elif uop == 'neg':
+            self.type = typecheck.eval_Boolean(expr, lines)
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
         
@@ -439,6 +442,7 @@ class BinaryExpr(Expr):
         self.bop = bop
         self.arg1 = arg1
         self.arg2 = arg2
+
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
 
@@ -465,6 +469,7 @@ class FieldAccessExpr(Expr):
         self.lines = lines
         self.base = base
         self.fname = fname
+        print fname
     def __repr__(self):
         return "Field-access({0}, {1})".format(self.base, self.fname)
         
