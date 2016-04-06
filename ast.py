@@ -279,6 +279,7 @@ class IfStmt(Stmt):
         self.condition = condition
         self.thenpart = thenpart
         self.elsepart = elsepart
+        self.type = typecheck.eval_IfStmt(condition, thenpart, elsepart, lines)
 
     def printout(self):
         print "If(",
@@ -328,6 +329,7 @@ class ReturnStmt(Stmt):
     def __init__(self, expr, lines):
         self.lines = lines
         self.expr = expr
+        print expr
 
     def printout(self):
         print "Return(",
@@ -339,6 +341,7 @@ class BlockStmt(Stmt):
     def __init__(self, stmtlist, lines):
         self.lines = lines
         self.stmtlist = [s for s in stmtlist if (s != None) and (not isinstance(s, SkipStmt))]
+        self.type = typecheck.eval_BlockStmt(stmtlist, lines)
 
     def printout(self):
         print "Block(["
@@ -363,10 +366,12 @@ class ContinueStmt(Stmt):
     def printout(self):
         print "Continue"
 
+# The statement is type correct if the expression is type correct.
 class ExprStmt(Stmt):
     def __init__(self, expr, lines):
         self.lines = lines
         self.expr = expr
+        self.type = typecheck.eval_Expr(expr, lines)
 
     def printout(self):
         print "Expr(",
@@ -407,7 +412,6 @@ class ConstantExpr(Expr):
             self.float = arg
         elif (kind == 'string'):
             self.string = arg
-
             
     def __repr__(self):
         s = "Unknown"
@@ -467,13 +471,13 @@ class AssignExpr(Expr):
     def __repr__(self):
         return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.type, self.rhs.type)
         
-        
 class AutoExpr(Expr):
     def __init__(self, arg, oper, when, lines):
         self.lines = lines
         self.arg = arg
         self.oper = oper
         self.when = when
+        self.type = typecheck.eval_AutoExpr(arg, lines)
     def __repr__(self):
         return "Auto({0}, {1}, {2})".format(self.arg, self.oper, self.when)
         
