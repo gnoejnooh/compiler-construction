@@ -486,9 +486,10 @@ class FieldAccessExpr(Expr):
         elif isinstance(base, ClassReferenceExpr):
             class_field = base.classref.lookup_field(fname)
         self.type = class_field.type
+        self.id = class_field.id
 
     def __repr__(self):
-        return "Field-access({0}, {1})".format(self.base, self.fname)
+        return "Field-access({0}, {1}, {2})".format(self.base, self.fname, self.id)
         
 class MethodInvocationExpr(Expr):
     def __init__(self, field, args, lines):
