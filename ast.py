@@ -329,7 +329,10 @@ class ReturnStmt(Stmt):
     def __init__(self, expr, lines):
         self.lines = lines
         self.expr = expr
-        print expr
+        method_list = decafparser.current_class.methods
+        current_method = method_list[len(method_list) - 1]
+        return_type = str(current_method.rtype)
+        self.type = typecheck.eval_ReturnStmt(expr, return_type, lines)
 
     def printout(self):
         print "Return(",

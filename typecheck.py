@@ -14,6 +14,16 @@ def eval_BlockStmt(stmtlist, line):
 				return 'error'
 	return 'correct'
 
+def eval_ReturnStmt(expr, return_type, line):
+	rtype = str(expr.type)
+	if return_type == 'void':
+		print "%d: incompatible types: unexpected return value" % line
+		return 'error'
+	elif rtype != return_type:
+		print "%d: incompatible types: unexpected return value" % line
+		return 'error'
+	return 'correct'
+
 def eval_Expr(expr, line):
 	etype = str(expr.type)
 	if(etype == 'error'):
