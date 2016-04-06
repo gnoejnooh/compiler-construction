@@ -1,10 +1,16 @@
 import ast
 
 def eval_IfStmt(condition, thenpart, elsepart, line):
-	cond_type = eval_Boolean(condition, line)
-	if(cond_type != 'boolean'):
-		print "%d: incompatible types: condition should have type boolean" % line
-		exit()
+	eval_Boolean(condition, line)
+	if (thenpart != None) and (not isinstance(thenpart, ast.SkipStmt)):
+		ttype = str(thenpart.type)
+		if ttype == 'error':
+			return 'error'
+	if (elsepart != None) and (not isinstance(elsepart, ast.SkipStmt)):
+		etype = str(elsepart.type)
+		if etype == 'error':
+			return 'error'
+	return 'correct'
 
 def eval_BlockStmt(stmtlist, line):
 	for stmt in stmtlist:
