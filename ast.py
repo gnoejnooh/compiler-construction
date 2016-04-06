@@ -391,6 +391,15 @@ class ConstantExpr(Expr):
     def __init__(self, kind, arg=None, lines=None):
         self.lines = lines
         self.kind = kind
+        # True and False have type boolean.
+        if(kind == 'True' or kind == 'False'):
+            self.type = 'boolean'
+        # Null has type null.
+        elif(kind == 'Null'):
+            self.type = 'null'
+        # Rest is same as kind.
+        else:
+            self.type = kind
         if (kind=='int'):
             self.int = arg
         elif (kind == 'float'):
@@ -424,6 +433,7 @@ class VarExpr(Expr):
     def __repr__(self):
         return "Variable(%d)"%self.var.id
 
+# Type check complete for uminus and neg except field-access variable.
 class UnaryExpr(Expr):
     def __init__(self, uop, expr, lines):
         self.lines = lines
@@ -442,6 +452,7 @@ class BinaryExpr(Expr):
         self.bop = bop
         self.arg1 = arg1
         self.arg2 = arg2
+        #self.type = typecheck.eval_BinaryExpr(bop, arg1, arg2, lines)
 
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
@@ -469,7 +480,8 @@ class FieldAccessExpr(Expr):
         self.lines = lines
         self.base = base
         self.fname = fname
-        print fname
+        c = lookup(classtable, 'f')
+        print c
     def __repr__(self):
         return "Field-access({0}, {1})".format(self.base, self.fname)
         
