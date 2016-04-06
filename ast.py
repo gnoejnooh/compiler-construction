@@ -295,6 +295,7 @@ class WhileStmt(Stmt):
         self.lines = lines
         self.cond = cond
         self.body = body
+        self.type = typecheck.eval_WhileStmt(cond, body, lines)
 
     def printout(self):
         print "While(",

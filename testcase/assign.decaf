@@ -11,7 +11,11 @@ class A {
     if (y > 1) {
       y++;
     } else {
-      x = 1;
+      y = 1;
+    }
+    
+    while (y = 10.1) {
+      y = true;
     }
     //y = true;
     //x = 1.1;

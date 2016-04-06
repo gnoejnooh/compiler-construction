@@ -12,6 +12,14 @@ def eval_IfStmt(condition, thenpart, elsepart, line):
 			return 'error'
 	return 'correct'
 
+def eval_WhileStmt(cond, body, line):
+	eval_Boolean(cond, line)
+	if (body != None) and (not isinstance(body, ast.SkipStmt)):
+		btype = str(body.type)
+		if btype == 'error':
+			return 'error'
+	return 'correct'
+
 def eval_BlockStmt(stmtlist, line):
 	for stmt in stmtlist:
 		if (stmt != None) and (not isinstance(stmt, ast.SkipStmt)):
@@ -83,14 +91,16 @@ def eval_BinaryExpr(bop, arg1, arg2, line):
 		btype1 = eval_Boolean(arg1, line)
 		btype2 = eval_Boolean(arg2, line)
 		if btype1 != btype2:
-			print "%d: incompatible types: should have type boolean"
+			print "%d: incompatible types: should have type boolean" % line
 			return 'error'
 		return btype1
 	elif bop == 'lt' or bop == 'leq' or bop == 'gt' or bop == 'geq':
 		btype1 = eval_number(arg1, line)
 		btype2 = eval_number(arg2, line)
+		if (btype1 == 'int' and btype2 == 'float') or (btype1 == 'float' and btype2 == 'int'):
+			return 'boolean'
 		if btype1 != btype2:
-			print "%d: incompatible types: should have type boolean"
+			print "%d: incompatible types: should have type boolean" % line
 			return 'error'
 		return 'boolean'
 	elif bop == 'eq' or bop == 'neq':
