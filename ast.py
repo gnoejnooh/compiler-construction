@@ -465,7 +465,7 @@ class AssignExpr(Expr):
         self.rhs = rhs
         self.type = typecheck.eval_AssignExpr(lhs, rhs, lines)
     def __repr__(self):
-        return "Assign({0}, {1})".format(self.lhs, self.rhs)
+        return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.type, self.rhs.type)
         
         
 class AutoExpr(Expr):

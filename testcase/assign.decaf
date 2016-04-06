@@ -7,8 +7,8 @@ class A {
     boolean x;
     int y;
     float z;
-    y = true;
-    x = 1.1;
+    //y = true;
+    //x = 1.1;
     z = 1;
    }
 }
