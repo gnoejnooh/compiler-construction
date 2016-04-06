@@ -463,6 +463,7 @@ class AssignExpr(Expr):
         self.lines = lines
         self.lhs = lhs
         self.rhs = rhs
+        self.type = typecheck.eval_AssignExpr(lhs, rhs, lines)
     def __repr__(self):
         return "Assign({0}, {1})".format(self.lhs, self.rhs)
         
@@ -485,6 +486,9 @@ class FieldAccessExpr(Expr):
             class_field = decafparser.current_class.lookup_field(fname)
         elif isinstance(base, ClassReferenceExpr):
             class_field = base.classref.lookup_field(fname)
+        if class_field is None:
+            print "%d: error: cannot find symbol %s.%s" % (lines, base, fname)
+            exit()
         self.type = class_field.type
         self.id = class_field.id
 

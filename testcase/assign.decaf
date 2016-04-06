@@ -1,0 +1,14 @@
+class A {
+  int a;
+  A() {
+    a = 0;
+  }
+  void f() {
+    boolean x;
+    int y;
+    float z;
+    y = true;
+    x = 1.1;
+    z = 1;
+   }
+}
