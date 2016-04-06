@@ -1,4 +1,5 @@
 import typecheck
+import decafparser
 
 classtable = {}  # initially empty dictionary of classes.
 lastmethod = 0
@@ -452,7 +453,7 @@ class BinaryExpr(Expr):
         self.bop = bop
         self.arg1 = arg1
         self.arg2 = arg2
-        #self.type = typecheck.eval_BinaryExpr(bop, arg1, arg2, lines)
+        self.type = typecheck.eval_BinaryExpr(bop, arg1, arg2, lines)
 
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
@@ -480,8 +481,12 @@ class FieldAccessExpr(Expr):
         self.lines = lines
         self.base = base
         self.fname = fname
-        c = lookup(classtable, 'f')
-        print c
+        if isinstance(base, ThisExpr):
+            class_field = decafparser.current_class.lookup_field(fname)
+        elif isinstance(base, ClassReferenceExpr):
+            class_field = base.classref.lookup_field(fname)
+        self.type = class_field.type
+
     def __repr__(self):
         return "Field-access({0}, {1})".format(self.base, self.fname)
         

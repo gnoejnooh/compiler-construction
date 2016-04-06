@@ -1,12 +1,16 @@
 class A {
   int a;
+  A() {
+    a = 0;
+  }
   void f() {
     int y;
     boolean x;
     //NEG TYPE-ERROR CASE: x = !1; x = !null; x = !"aa"; x = !true;
-    x = !a;
+    //x = !a;
     //x = !y;
     x = !(1 > y);
+    y = -A.a;
     y = -2.3;
     //UMINUS TYPE-ERROR CASE: y = -x; y = -null; y = -"aa"; y = -true;
    }
