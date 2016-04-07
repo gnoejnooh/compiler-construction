@@ -20,12 +20,20 @@ def eval_WhileStmt(cond, body, line):
 			return 'error'
 	return 'correct'
 
-def eval_BlockStmt(stmtlist, line):
-	for stmt in stmtlist:
-		if (stmt != None) and (not isinstance(stmt, ast.SkipStmt)):
-			stype = str(stmt.type)
-			if(stype == 'error'):
-				return 'error'
+def eval_ForStmt(init, cond, update, body, line):
+	if (init != None) and (not isinstance(init, ast.SkipStmt)):
+		itype = str(init.type)
+		if itype == 'error':
+			return 'error'
+	eval_Boolean(cond, line)
+	if (update != None) and (not isinstance(update, ast.SkipStmt)):
+		utype = str(update.type)
+		if itype == 'error':
+			return 'error'
+	if (body != None) and (not isinstance(body, ast.SkipStmt)):
+		utype = str(update.type)
+		if itype == 'error':
+			return 'error'
 	return 'correct'
 
 def eval_ReturnStmt(expr, return_type, line):
@@ -42,6 +50,14 @@ def eval_Expr(expr, line):
 	etype = str(expr.type)
 	if(etype == 'error'):
 		return 'error'
+	return 'correct'
+
+def eval_BlockStmt(stmtlist, line):
+	for stmt in stmtlist:
+		if (stmt != None) and (not isinstance(stmt, ast.SkipStmt)):
+			stype = str(stmt.type)
+			if(stype == 'error'):
+				return 'error'
 	return 'correct'
 
 def eval_Boolean(expr, line):
@@ -79,6 +95,12 @@ def eval_number(expr, line):
 	else:
 		print "%d: incompatible types: expression is not a number" % line
 		return 'error'
+
+def eval_UnaryExpr(uop, expr, line):
+    if uop == 'uminus':
+        return eval_number(expr, line)
+    elif uop == 'neg':
+        return eval_Boolean(expr, line)
 
 def eval_BinaryExpr(bop, arg1, arg2, line):
 	if bop == 'add' or bop == 'sub' or bop == 'mul' or bop == 'div':
@@ -119,6 +141,8 @@ def eval_BinaryExpr(bop, arg1, arg2, line):
 def eval_AssignExpr(lhs, rhs, line):
 	ltype = str(lhs.type)
 	rtype = str(rhs.type)
+	if ltype == 'error' or rtype == 'error':
+		return 'error'
 	if ltype == 'float' and rtype == 'int':
 		return 'correct'
 	if ltype != rtype:

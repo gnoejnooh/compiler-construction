@@ -6,16 +6,21 @@ class A {
   int f() {
     boolean x;
     int y;
+    int i;
     float z;
-    y = 1;
+    y = -true;
     if (y > 1) {
       y++;
     } else {
       y = 1;
     }
     
-    while (y = 10.1) {
-      y = true;
+    for(i = true; i = 10.1; i++) {
+      i++;
+    }
+
+    while (z = 10.1) {
+      x = true;
     }
     //y = true;
     //x = 1.1;

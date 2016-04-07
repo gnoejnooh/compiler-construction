@@ -311,6 +311,7 @@ class ForStmt(Stmt):
         self.cond = cond
         self.update = update
         self.body = body
+        self.type = typecheck.eval_ForStmt(init, cond, update, body, lines)
 
     def printout(self):
         print "For(",
@@ -448,10 +449,8 @@ class UnaryExpr(Expr):
         self.lines = lines
         self.uop = uop
         self.arg = expr
-        if uop == 'uminus':
-            self.type = typecheck.eval_number(expr, lines)
-        elif uop == 'neg':
-            self.type = typecheck.eval_Boolean(expr, lines)
+        self.type = typecheck.eval_UnaryExpr(uop, expr, lines)
+        
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
         
