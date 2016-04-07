@@ -450,7 +450,7 @@ class UnaryExpr(Expr):
         self.uop = uop
         self.arg = expr
         self.type = typecheck.eval_UnaryExpr(uop, expr, lines)
-        
+
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
         
@@ -489,6 +489,7 @@ class FieldAccessExpr(Expr):
         self.lines = lines
         self.base = base
         self.fname = fname
+        class_field = None
         if isinstance(base, ThisExpr):
             class_field = decafparser.current_class.lookup_field(fname)
         elif isinstance(base, ClassReferenceExpr):
@@ -522,12 +523,20 @@ class NewObjectExpr(Expr):
 class ThisExpr(Expr):
     def __init__(self, lines):
         self.lines = lines
+        class_name = str(decafparser.current_class.name)
+        self.type = "user(" + class_name + ")"
     def __repr__(self):
         return "This"
         
 class SuperExpr(Expr):
     def __init__(self, lines):
         self.lines = lines
+        superclass = decafparser.current_class.superclass
+        if superclass == None:
+            self.type = 'error'
+        else:
+            self.type = "user(" + str(superclass.name) + ")"
+
     def __repr__(self):
         return "Super"
         
@@ -535,6 +544,8 @@ class ClassReferenceExpr(Expr):
     def __init__(self, cref, lines):
         self.lines = lines
         self.classref = cref
+        self.type = "class-literal(" + str(cref.name) + ")"
+        print self.type
     def __repr__(self):
         return "ClassReference({0})".format(self.classref.name)
         

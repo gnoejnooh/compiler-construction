@@ -1,17 +1,26 @@
-class A {
+class B {
+  int a;
+  B() {
+    this.a = 0;
+  }
+}
+
+class A extends B {
   int a;
   A() {
-    a = 0;
+    a = 1;
   }
   void f() {
     int y;
     boolean x;
+    //A = super();
     //NEG TYPE-ERROR CASE: x = !1; x = !null; x = !"aa"; x = !true;
     //x = !a;
     //x = !y;
     x = !(1 > y);
-    y = -A.a;
-    y = -2.3;
+    y = -B.a;
+    y = -2;
     //UMINUS TYPE-ERROR CASE: y = -x; y = -null; y = -"aa"; y = -true;
    }
 }
+
