@@ -7,15 +7,14 @@ class B {
 
 class A extends B {
   int a;
-  A(boolean x, int y) {
-    x = true;
-    y = 1;
+  public A s;
+  A() {
     a = 1;
+    s = new B();
   }
   void f() {
     int y;
     boolean x;
-    this.b = new A(x, y);
     //A = super();
     //NEG TYPE-ERROR CASE: x = !1; x = !null; x = !"aa"; x = !true;
     //x = !a;
