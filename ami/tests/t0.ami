@@ -1,0 +1,13 @@
+# This is a sample
+.static_data 10
+
+top:  move_immed_i t0, 1
+      move_immed_i t1, 2
+      iadd	   t2, t0, t1
+      iadd	   t3, t1, t2
+      ret
+
+__main__:
+	call	top
+	ret
+      
