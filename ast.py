@@ -1,14 +1,7 @@
 classtable = {}  # initially empty dictionary of classes.
 lastmethod = 0
 lastconstructor = 0
-
-reg = []
-regAvailable = []
-regUsed = []
-
 static_data_size = 0
-static_data = []
-
 
 # Class table.  Only user-defined classes are placed in the class table.
 def lookup(table, key):

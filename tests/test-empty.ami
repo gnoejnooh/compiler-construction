@@ -1,0 +1,8 @@
+.static_data 10
+
+top:
+	ret
+
+__main__:
+	call top
+	ret

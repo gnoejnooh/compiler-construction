@@ -41,8 +41,9 @@ def main(argv=None):
         if decafparser.from_file(infile):
             if (ast.typecheck()):
                 #ast.print_ast()
-                absmc.print_code(ast.classtable)
-                
+                outfile = filename + ".ami"
+                absmc.print_code(outfile, ast.classtable, ast.static_data_size)
+
         else:
             print "Failure: there were errors."
     except Usage, err:
