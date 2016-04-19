@@ -1,0 +1,22 @@
+class A {
+      int x;
+}
+
+class B extends A {
+      int y;
+}
+
+class C {
+      int f(int a, float b) {
+      	  return 0;
+      }
+      int f(float a, int b) {
+      	  return 0;
+      }
+      int f(A a, B b) {
+          return 1;
+      }
+      int f(B b, A a) {
+          return 2;
+      }
+}

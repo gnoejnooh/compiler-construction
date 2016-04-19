@@ -1,0 +1,10 @@
+class A {
+      static int x;
+      static int f(int y, int w) {
+      int z1;
+      int z2;
+      z1 = A.x;
+      return z2+z1;
+      }
+}
+

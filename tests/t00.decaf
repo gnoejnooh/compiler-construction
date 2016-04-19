@@ -1,0 +1,17 @@
+class A {
+      int x;
+      public int x2;
+      private static int x3;
+}
+
+class B extends A {
+      public int y[][];
+}
+
+class C extends A {
+      static int x;
+}
+
+class D extends B   {
+      D w[];
+}

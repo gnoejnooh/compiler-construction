@@ -1,0 +1,13 @@
+class A {
+      int x;
+}
+class B {
+     int y;
+     int f() {
+     A = y;
+     }
+     int g(){
+        int A;
+	A = y;
+    } 
+}
