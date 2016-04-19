@@ -20,6 +20,7 @@ def addtotable(table, key, value):
 
 
 def print_ast():
+    #typecheck.nameResolution(classtable)
     for cid in classtable:
         c = classtable[cid]
         c.printout()
@@ -513,6 +514,7 @@ class MethodInvocationExpr(Expr):
         self.base = field.base
         self.mname = field.fname
         self.args = args
+
     def __repr__(self):
         return "Method-call({0}, {1}, {2})".format(self.base, self.mname, self.args)
 
@@ -521,6 +523,20 @@ class NewObjectExpr(Expr):
         self.lines = lines
         self.classref = cref
         self.args = args
+        self.type = None
+        args_cpy = [str(arg) for arg in args]
+        con = cref.constructors
+        for c in con:
+            dict = c.vars.vars[0]
+            ar = ['Variable(' + str(dict.get(key).id) + ')' for key in dict]
+            if ar == args_cpy:
+                resolution = True
+                break;
+        if resolution is True:
+            self.type = 'user(' + cref.name + ')'
+        else:
+            self.type = 'error'
+
     def __repr__(self):
         return "New-object({0}, {1})".format(self.classref.name, self.args)
 
@@ -549,7 +565,7 @@ class ClassReferenceExpr(Expr):
         self.lines = lines
         self.classref = cref
         self.type = "class-literal(" + str(cref.name) + ")"
-        print self.type
+
     def __repr__(self):
         return "ClassReference({0})".format(self.classref.name)
 

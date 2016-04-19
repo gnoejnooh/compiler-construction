@@ -160,3 +160,6 @@ def eval_AutoExpr(arg, line):
 	else:
 		print "%d: incompatible types: argument is not a number" % line
 		return 'error'
+
+#def nameResolution(classtable):
+#	for c in classtable:

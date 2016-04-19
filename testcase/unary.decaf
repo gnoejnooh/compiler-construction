@@ -7,8 +7,10 @@ class B {
 
 class A extends B {
   int a;
+  public A s;
   A() {
     a = 1;
+    s = new B();
   }
   void f() {
     int y;
