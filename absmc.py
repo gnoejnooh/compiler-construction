@@ -23,20 +23,18 @@ def print_code(out, ct, ss):
     classtable = ct
 
     outfile.write(".static_data %d\n" % static_data_size)
+    outfile.write("top:\n")
 
     # Print all things in the classtable
     for keys,values in classtable.items():
         # Print out the label
-        if keys != "In" and keys != "Out":
-            if lastlabel == 0:
-                outfile.write("\ntop:\n")
-            else:
-                outfile.write("\nt%d:\n" % lastlabel)
-                lastlabel += 1
+        if values.builtin:
+            print "Builitin class: %s" % keys
+        else:
+            outfile.write("\nt%d:\n" % lastlabel)
+            lastlabel += 1
             outfile.write("\tret\n")
-        # Print out the values inside
-        #print keys
-        #print values
+        # Print the values
 
     outfile.write("\n__main__:\n")
     outfile.write("\tcall top\n")

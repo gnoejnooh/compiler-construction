@@ -1,3 +1,7 @@
 class A {
   int x;
 }
+
+class B {
+  int y;
+}

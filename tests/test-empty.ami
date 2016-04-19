@@ -1,6 +1,10 @@
-.static_data 10
-
+.static_data 0
 top:
+
+t0:
+	ret
+
+t1:
 	ret
 
 __main__:
