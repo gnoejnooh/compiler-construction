@@ -2,6 +2,8 @@ classtable = {}  # initially empty dictionary of classes.
 lastmethod = 0
 lastconstructor = 0
 static_data_size = 0
+tmpreg = []
+argreg = []
 
 # Class table.  Only user-defined classes are placed in the class table.
 def lookup(table, key):
@@ -396,6 +398,9 @@ class Variable:
         self.kind = vkind
         self.type = vtype
 
+    def __repr__(self):
+        return "t{0}".format(self.id)
+
     def printout(self):
         print "VARIABLE {0}, {1}, {2}, {3}".format(self.id, self.name, self.kind, self.type)
 
@@ -410,6 +415,7 @@ class IfStmt(Stmt):
         self.thenpart = thenpart
         self.elsepart = elsepart
         self.__typecorrect = None
+        self.type = "If"
 
     def printout(self):
         print "If(",
@@ -445,6 +451,7 @@ class WhileStmt(Stmt):
         self.cond = cond
         self.body = body
         self.__typecorrect = None
+        self.type = "While"
 
     def printout(self):
         print "While(",
@@ -477,6 +484,7 @@ class ForStmt(Stmt):
         self.update = update
         self.body = body
         self.__typecorrect = None
+        self.type="For"
 
     def printout(self):
         print "For(",
@@ -520,6 +528,7 @@ class ReturnStmt(Stmt):
     def __init__(self, expr, lines):
         self.lines = lines
         self.expr = expr
+        self.type = "Return"
         self.__typecorrect = None
 
     def printout(self):
@@ -548,6 +557,7 @@ class BlockStmt(Stmt):
         self.lines = lines
         self.stmtlist = [s for s in stmtlist if (s != None) and (not isinstance(s, SkipStmt))]
         self.__typecorrect = None
+        self.type = "Block"
 
     def printout(self):
         print "Block(["
@@ -576,6 +586,7 @@ class BreakStmt(Stmt):
     def __init__(self, lines):
         self.lines = lines
         self.__typecorrect = True
+        self.type = "Break"
 
     def printout(self):
         print "Break"
@@ -590,6 +601,7 @@ class ContinueStmt(Stmt):
     def __init__(self, lines):
         self.lines = lines
         self.__typecorrect = True
+        self.type = "Continue"
 
     def printout(self):
         print "Continue"
@@ -605,6 +617,7 @@ class ExprStmt(Stmt):
     def __init__(self, expr, lines):
         self.lines = lines
         self.expr = expr
+        self.type = "Expr"
         self.__typecorrect = None
 
     def printout(self):
@@ -627,6 +640,7 @@ class ExprStmt(Stmt):
 class SkipStmt(Stmt):
     def __init__(self, lines):
         self.lines = lines
+        self.type = "Skip"
         self.__typecorrect = True
 
     def printout(self):
@@ -664,18 +678,18 @@ class ConstantExpr(Expr):
     def __repr__(self):
         s = "Unknown"
         if (self.kind == 'int'):
-            s = "Integer-constant(%d)"%self.int
+            s = "%d"%self.int
         elif (self.kind == 'float'):
-            s = "Float-constant(%g)"%self.float
+            s = "%g"%self.float
         elif (self.kind == 'string'):
-            s = "String-constant(%s)"%self.string
+            s = "%s"%self.string
         elif (self.kind == 'Null'):
             s = "Null"
         elif (self.kind == 'True'):
             s = "True"
         elif (self.kind == 'False'):
             s = "False"
-        return "Constant({0})".format(s)
+        return "{0}".format(s)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -704,7 +718,8 @@ class VarExpr(Expr):
         self.var = var
         self.__typeof = None
     def __repr__(self):
-        return "Variable(%d)"%self.var.id
+        tmpreg.append(self.var)
+        return "t%d"%self.var.id
 
     def typeof(self):
         if (self.__typeof == None):
@@ -754,7 +769,7 @@ class BinaryExpr(Expr):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
 
     def code(self):
-        return "i%s , %s, %s" % (self.bop, self.arg1, self.arg2)
+        return "i%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -809,7 +824,11 @@ class AssignExpr(Expr):
         self.rhs = rhs
         self.__typeof = None
     def __repr__(self):
-        return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.typeof(), self.rhs.typeof())
+        lhstype = self.lhs.typeof().typename
+        if type(self.rhs) == BinaryExpr:
+            return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
+        else:
+            return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 
     def typeof(self):
         if (self.__typeof == None):

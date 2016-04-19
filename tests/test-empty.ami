@@ -2,9 +2,13 @@
 top:
 
 t0:
+	move_immed_i t1 1
+	move_immed_f t2 0.1
+	iadd t1 t1 1
 	ret
 
 t1:
+	move_immed_i Field-access(This, y, 2) 1
 	ret
 
 __main__:

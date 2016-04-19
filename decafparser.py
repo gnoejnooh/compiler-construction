@@ -465,7 +465,6 @@ def p_expr_binop(p):
             | expr OR expr
     '''
     p[0] = ast.BinaryExpr(binops[p[2]], p[1], p[3], p.lineno(2))
-    print ast.BinaryExpr.code(p[0])
 
 def p_expr_unop_plus(p):
     'expr : PLUS expr %prec UMINUS'
@@ -480,6 +479,7 @@ def p_expr_unop_not(p):
 def p_assign_equals(p):
     'assign : lhs ASSIGN expr'
     p[0] = ast.AssignExpr(p[1], p[3], p.lineno(2))
+
 def p_assign_post_inc(p):
     'assign : lhs INC'
     p[0] = ast.AutoExpr(p[1], 'inc', 'post', p.lineno(2))

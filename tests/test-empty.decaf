@@ -1,7 +1,17 @@
 class A {
-  int x;
+  int a;
+  A() {
+    int x;
+    float y;
+    x = 1;
+    y = 0.1;
+    x = x + 1;
+  }
 }
 
 class B {
   int y;
+  B() {
+    this.y = 1;
+  }
 }
