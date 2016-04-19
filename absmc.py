@@ -2,19 +2,18 @@ import ast
 import sys
 import logging
 
-# reg: All Registers
-# regAvailable: Available Registers
-# regUsed: Used Registers (Not available)
-reg = []
-regAvailable = []
-regUsed = []
+tmpreg = []
+argreg = []
+controlstack = []
+datastack = []
 static_data_size = 0
 static_data = []
 classtable = {}
 lastlabel = 0
 
 def print_code(out, ct, ss):
-    global lastlabel, reg, regAvailable, regUsed
+    global lastlabel
+    global tmpreg, argreg, controlstack, datastack
     global static_data_size, static_data, classtable
     static_data_size = ss
 
@@ -31,6 +30,7 @@ def print_code(out, ct, ss):
         if values.builtin:
             print "Builitin class: %s" % keys
         else:
+
             outfile.write("\nt%d:\n" % lastlabel)
             lastlabel += 1
             outfile.write("\tret\n")
