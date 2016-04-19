@@ -1,7 +1,10 @@
 import typecheck
 import decafparser
 
+
+
 classtable = {}  # initially empty dictionary of classes.
+unknowntable = {}
 lastmethod = 0
 lastconstructor = 0
 
@@ -21,7 +24,7 @@ def print_ast():
         c = classtable[cid]
         c.printout()
     print "-----------------------------------------------------------------------------"
-    
+
 
 def initialize_ast():
     # define In class:
@@ -33,7 +36,7 @@ def initialize_ast():
     scanint = Method('scan_int', cin, 'public', 'static', Type('int'))
     scanint.update_body(SkipStmt(None))    # No line number information for the empty body
     cin.add_method(scanint)
-    
+
     scanfloat = Method('scan_float', cin, 'public', 'static', Type('float'))
     scanfloat.update_body(SkipStmt(None))    # No line number information for the empty body
     cin.add_method(scanfloat)
@@ -42,17 +45,17 @@ def initialize_ast():
     printint.update_body(SkipStmt(None))    # No line number information for the empty body
     printint.add_var('i', 'formal', Type('int'))   # single integer formal parameter
     cout.add_method(printint)
-    
+
     printfloat = Method('print', cout, 'public', 'static', Type('void'))
     printfloat.update_body(SkipStmt(None))    # No line number information for the empty body
     printfloat.add_var('f', 'formal', Type('float'))   # single float formal parameter
     cout.add_method(printfloat)
-    
+
     printboolean = Method('print', cout, 'public', 'static', Type('void'))
     printboolean.update_body(SkipStmt(None))    # No line number information for the empty body
     printboolean.add_var('b', 'formal', Type('boolean'))   # single boolean formal parameter
     cout.add_method(printboolean)
-    
+
     printstring = Method('print', cout, 'public', 'static', Type('void'))
     printstring.update_body(SkipStmt(None))    # No line number information for the empty body
     printstring.add_var('b', 'formal', Type('string'))   # single string formal parameter
@@ -75,7 +78,7 @@ class Class:
     def printout(self):
         if (self.builtin):
             return     # Do not print builtin methods
-        
+
         print "-----------------------------------------------------------------------------"
         print "Class Name: {0}".format(self.name)
         sc = self.superclass
@@ -93,7 +96,7 @@ class Class:
         print "Methods:"
         for m in self.methods:
             m.printout()
-        
+
 
     def add_field(self, fname, field):
         self.fields[fname] = field
@@ -105,7 +108,7 @@ class Class:
     def lookup_field(self, fname):
         return lookup(self.fields, fname)
 
-            
+
 class Type:
     """A class encoding Types in Decaf"""
     def __init__(self, basetype, params=None):
@@ -162,7 +165,7 @@ class Method:
         self.storage = storage
         self.rtype = rtype
         self.vars = VarTable()
-        
+
     def update_body(self, body):
         self.body = body
 
@@ -176,7 +179,7 @@ class Method:
         self.vars.printout()
         print "Method Body:"
         self.body.printout()
-        
+
 class Constructor:
     """A class encoding constructors and their attributes in Decaf"""
     def __init__(self, cname, visibility):
@@ -186,7 +189,7 @@ class Constructor:
         self.id = lastconstructor
         self.visibility = visibility
         self.vars = VarTable()
-        
+
     def update_body(self, body):
         self.body = body
 
@@ -200,7 +203,7 @@ class Constructor:
         self.vars.printout()
         print "Constructor Body:"
         self.body.printout()
-        
+
 
 class VarTable:
     """ Table of variables in each method/constructor"""
@@ -225,7 +228,7 @@ class VarTable:
         v = Variable(vname, self.lastvar, vkind, vtype)
         vbl = self.vars[c]  # list of variables in current block
         vbl[vname] = v
-    
+
     def _find_in_block(self, vname, b):
         if (b in self.vars):
             # block exists
@@ -256,7 +259,7 @@ class VarTable:
             for vname in self.vars[b]:
                 v = self.vars[b][vname]
                 v.printout()
-        
+
 
 class Variable:
     """ Record for a single variable"""
@@ -268,9 +271,9 @@ class Variable:
 
     def printout(self):
         print "VARIABLE {0}, {1}, {2}, {3}".format(self.id, self.name, self.kind, self.type)
-    
 
-class Stmt(object): 
+
+class Stmt(object):
     """ Top-level (abstract) class representing all statements"""
 
 class IfStmt(Stmt):
@@ -363,7 +366,7 @@ class BreakStmt(Stmt):
 
     def printout(self):
         print "Break"
-        
+
 class ContinueStmt(Stmt):
     def __init__(self, lines):
         self.lines = lines
@@ -382,20 +385,20 @@ class ExprStmt(Stmt):
         print "Expr(",
         self.expr.printout()
         print ")"
-        
+
 class SkipStmt(Stmt):
     def __init__(self, lines):
         self.lines = lines
 
     def printout(self):
         print "Skip"
-        
+
 
 class Expr(object):
     def __repr__(self):
         return "Unknown expression"
     def printout(self):
-        print self, 
+        print self,
 
 
 class ConstantExpr(Expr):
@@ -417,7 +420,7 @@ class ConstantExpr(Expr):
             self.float = arg
         elif (kind == 'string'):
             self.string = arg
-            
+
     def __repr__(self):
         s = "Unknown"
         if (self.kind == 'int'):
@@ -453,7 +456,7 @@ class UnaryExpr(Expr):
 
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
-        
+
 class BinaryExpr(Expr):
     def __init__(self, bop, arg1, arg2, lines):
         self.lines = lines
@@ -473,7 +476,7 @@ class AssignExpr(Expr):
         self.type = typecheck.eval_AssignExpr(lhs, rhs, lines)
     def __repr__(self):
         return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.type, self.rhs.type)
-        
+
 class AutoExpr(Expr):
     def __init__(self, arg, oper, when, lines):
         self.lines = lines
@@ -483,7 +486,7 @@ class AutoExpr(Expr):
         self.type = typecheck.eval_AutoExpr(arg, lines)
     def __repr__(self):
         return "Auto({0}, {1}, {2})".format(self.arg, self.oper, self.when)
-        
+
 class FieldAccessExpr(Expr):
     def __init__(self, base, fname, lines):
         self.lines = lines
@@ -495,6 +498,7 @@ class FieldAccessExpr(Expr):
         elif isinstance(base, ClassReferenceExpr):
             class_field = base.classref.lookup_field(fname)
         if class_field is None:
+            addtotable(unknowntable, base, fname)
             print "%d: error: cannot find symbol %s.%s" % (lines, base, fname)
             exit()
         self.type = class_field.type
@@ -502,7 +506,7 @@ class FieldAccessExpr(Expr):
 
     def __repr__(self):
         return "Field-access({0}, {1}, {2})".format(self.base, self.fname, self.id)
-        
+
 class MethodInvocationExpr(Expr):
     def __init__(self, field, args, lines):
         self.lines = lines
@@ -511,7 +515,7 @@ class MethodInvocationExpr(Expr):
         self.args = args
     def __repr__(self):
         return "Method-call({0}, {1}, {2})".format(self.base, self.mname, self.args)
-        
+
 class NewObjectExpr(Expr):
     def __init__(self, cref, args, lines):
         self.lines = lines
@@ -527,7 +531,7 @@ class ThisExpr(Expr):
         self.type = "user(" + class_name + ")"
     def __repr__(self):
         return "This"
-        
+
 class SuperExpr(Expr):
     def __init__(self, lines):
         self.lines = lines
@@ -539,7 +543,7 @@ class SuperExpr(Expr):
 
     def __repr__(self):
         return "Super"
-        
+
 class ClassReferenceExpr(Expr):
     def __init__(self, cref, lines):
         self.lines = lines
@@ -548,7 +552,7 @@ class ClassReferenceExpr(Expr):
         print self.type
     def __repr__(self):
         return "ClassReference({0})".format(self.classref.name)
-        
+
 class ArrayAccessExpr(Expr):
     def __init__(self, base, index, lines):
         self.lines = lines
@@ -556,7 +560,7 @@ class ArrayAccessExpr(Expr):
         self.index = index
     def __repr__(self):
         return "Array-access({0}, {1})".format(self.base, self.index)
-        
+
 class NewArrayExpr(Expr):
     def __init__(self, basetype, args, lines):
         self.lines = lines
@@ -564,4 +568,3 @@ class NewArrayExpr(Expr):
         self.args = args
     def __repr__(self):
         return "New-array({0}, {1})".format(self.basetype, self.args)
-
