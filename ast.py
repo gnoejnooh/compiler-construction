@@ -1,6 +1,7 @@
 classtable = {}  # initially empty dictionary of classes.
 lastmethod = 0
 lastconstructor = 0
+lastfields = 0
 static_data_size = 0
 tmpreg = []
 argreg = []
@@ -257,6 +258,8 @@ class Field:
     lastfield = 0
     def __init__(self, fname, fclass, visibility, storage, ftype):
         Field.lastfield += 1
+        global lastfields
+        lastfields += 1
         self.name = fname
         self.id = Field.lastfield
         self.inclass = fclass
@@ -826,7 +829,15 @@ class AssignExpr(Expr):
     def __repr__(self):
         lhstype = self.lhs.typeof().typename
         if type(self.rhs) == BinaryExpr:
-            return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
+            if type(self.rhs.arg2) == ConstantExpr:
+                if self.rhs.arg2.typeof().typename == "float":
+                    return "move_immed_f t9 {0}\n\ti{1} {2} {3} t9".format(self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1)
+                else:
+                    return "move_immed_i t9 {0}\n\ti{1} {2} {3} t9".format(self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1)
+            else:
+                return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
+        elif type(self.rhs) == VarExpr:
+            return "move {0} {1}".format(self.lhs, self.rhs)
         else:
             return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 

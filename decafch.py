@@ -42,7 +42,7 @@ def main(argv=None):
             if (ast.typecheck()):
                 #ast.print_ast()
                 outfile = filename + ".ami"
-                absmc.print_code(outfile, ast.classtable, ast.static_data_size)
+                absmc.print_code(outfile, ast.classtable)
 
         else:
             print "Failure: there were errors."

@@ -11,16 +11,18 @@ static_data = []
 classtable = {}
 lastlabel = 0
 
-def print_code(out, ct, ss):
+def print_code(out, ct):
     global lastlabel
     global tmpreg, argreg, controlstack, datastack
     global static_data_size, static_data, classtable
-    static_data_size = ss
 
     # File Output Source
     outfile = open(out, 'w')
     classtable = ct
 
+    # Calculate static data size
+    static_data_size = ast.lastfields
+    
     outfile.write(".static_data %d\n" % static_data_size)
     outfile.write("top:\n")
 
