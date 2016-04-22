@@ -452,8 +452,16 @@ class IfStmt(Stmt):
         self.type = "If"
 
     def codegen(self):
-        ifstmt_str = "%s\n\tbz t%d ELSE%d\nIF%d:\n\t%s\n\tjmp IFEND%d\nELSE%d:\n\t%s\nIFEND%d:\n" % (self.condition.codegen(), len(tmpreg)+1, IfStmt.labelcount, IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount, IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
-        print ifstmt_str
+        condition_str = "%s\n\t" % (self.condition.codegen())
+        if self.elsepart.type == 'Skip':
+            ifstmt_str = "bz t%d IFEND%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
+            then_str = "IF%d:\n\t%s\n" % (IfStmt.labelcount, self.thenpart.codegen())
+            else_str = "IFEND%d:\n" % (IfStmt.labelcount)
+        else:
+            ifstmt_str = "bz t%d ELSE%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
+            then_str = "IF%d:\n\t%s\n\tjmp IFEND%d\n" % (IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount)
+            else_str = "ELSE%d:\n\t%s\nIFEND%d:\n" % (IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
+        return condition_str + ifstmt_str + then_str + else_str
 
     def printout(self):
         print "If(",
@@ -891,18 +899,21 @@ class AssignExpr(Expr):
                 else:
                     return "move_immed_i t%d -1\n\tfmul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
             else:
-                unary_str = "bz %s, T%d\n\tmove_immed_i %s, 0\n\tjmp T%d\nT%d:\n\tmove_immed_i %s, 1\nT%d:" % (self.lhs, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
+                unary_str = "bz %s, T%d\n\t" % (self.lhs, UnaryExpr.labelcount)
+                iftrue_str = "move_immed_i %s, 0\n\tjmp T%d\n" % (self.lhs, UnaryExpr.labelcount+1)
+                iffalse_str = "T%d:\n\tmove_immed_i %s, 1\nT%d" % (UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
                 UnaryExpr.labelcount += 2
-                return unary_str
+                return unary_str + iftrue_str + iffalse_str
         elif type(self.rhs) == AutoExpr:
             auto_str = "\n\tmove %s, %s" % (self.lhs, self.rhs.arg)
             return self.rhs.codegen() + auto_str
         else:
             if lhstype == 'boolean':
-                if self.rhs == "True":
-                    return "move_immed_i {0} {1}".format(self.lhs, 0)
-                else:
+                print self.rhs
+                if str(self.rhs) == 'True':
                     return "move_immed_i {0} {1}".format(self.lhs, 1)
+                else:
+                    return "move_immed_i {0} {1}".format(self.lhs, 0)
             return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 
     def typeof(self):
@@ -931,12 +942,12 @@ class AutoExpr(Expr):
 
     def codegen(self):
         if self.oper == 'inc':
-            if self.arg.var.type == 'int':
+            if str(self.arg.var.type) == 'int':
                 return "move_immde_i t%d, 1\n\tiadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
             else:
                 return "move_immde_f t%d, 1\n\tfadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
         else:
-            if self.arg.var.type == 'int':
+            if str(self.arg.var.type) == 'int':
                 return "move_immde_i t%d, 1\n\tisub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
             else:
                 return "move_immde_f t%d, 1\n\tfsub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)

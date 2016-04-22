@@ -73,7 +73,7 @@ def generate_code(body, outfile):
             elif stmt.type == "While":
                 print "While: %s" % stmt
             elif stmt.type == "If":
-                print "If: %s" % stmt.codegen()
+                print "\t%s" % stmt.codegen()
             elif stmt.type == "Continue":
                 print "Continue: %s" % stmt
             elif stmt.type == "Break":
