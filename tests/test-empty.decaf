@@ -2,26 +2,16 @@ class A {
   int a;
   float b;
   static int c;
-  boolean d;
   A() {
     int x;
-    x = x + 1;
-    A.c = 2;
   }
   int world() {
-    int world;
-    world = world + 3;
-    return world;
-  }
-}
-
-class B {
-  int b;
-  B() {
-    int y;
-  }
-  public int hello() {
-    this.b = 1;
-    return this.b;
+    int i;
+    int j;
+    j = 0;
+    for(i = 0; i < 5; i++) {
+      j = j + i;
+    }
+    return 0;
   }
 }

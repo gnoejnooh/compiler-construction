@@ -530,14 +530,37 @@ class WhileStmt(Stmt):
             return 0
 
 class ForStmt(Stmt):
+    labelcount = 0
+
     def __init__(self, init, cond, update, body, lines):
         self.lines = lines
-        self.init = init
-        self.cond = cond
-        self.update = update
-        self.body = body
+        self.init = init # 1st var
+        self.cond = cond # 2nd var
+        self.update = update # 3rd var
+        self.body = body # body
         self.__typecorrect = None
         self.type="For"
+
+    def codegen(self):
+        # For[LabelCount]:
+        #   cond stmt
+        #   branch
+        #   go for Body
+        #   last cond
+        #   branch back to for loop
+
+        forlabel = "For%ds:\n" % self.labelcount
+        forinitstr = "\t%s\n" % self.init.codegen()
+        forloopstart="For%d:\n" % self.labelcount
+        forcond = "\t%s\n" % self.cond.codegen()
+        forcondjmp = "\tbz %s, For%de\n" % (self.init.lhs.var, self.labelcount)
+        forupdate = "\t%s\n" % self.update.codegen()
+        forloopback = "\tjmp For%d\n" % self.labelcount
+        fordone = "For%de:\n" % self.labelcount
+
+        self.labelcount += 1
+        return "{0}{1}{2}{3}{4}{5}{6}{7}".format(forlabel, forinitstr, forloopstart, forcond, forcondjmp, forupdate, forloopback, fordone)
+
 
     def printout(self):
         print "For(",
@@ -751,6 +774,9 @@ class ConstantExpr(Expr):
             s = "False"
         return "{0}".format(s)
 
+    def codegen(self):
+        return self
+
     def typeof(self):
         if (self.__typeof == None):
             if (self.kind == 'int'):
@@ -886,7 +912,7 @@ class AssignExpr(Expr):
         self.lhs = lhs
         self.rhs = rhs
         self.__typeof = None
-    
+
     def codegen(self):
         lhstype = self.lhs.typeof().typename
         if type(self.rhs) == BinaryExpr:
@@ -950,14 +976,14 @@ class AutoExpr(Expr):
     def codegen(self):
         if self.oper == 'inc':
             if str(self.arg.var.type) == 'int':
-                return "move_immde_i t%d, 1\n\tiadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_i t%d, 1\n\tiadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
             else:
-                return "move_immde_f t%d, 1\n\tfadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_f t%d, 1\n\tfadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
         else:
             if str(self.arg.var.type) == 'int':
-                return "move_immde_i t%d, 1\n\tisub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_i t%d, 1\n\tisub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
             else:
-                return "move_immde_f t%d, 1\n\tfsub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_f t%d, 1\n\tfsub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
 
     def typeof(self):
         if (self.__typeof == None):

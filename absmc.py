@@ -69,7 +69,9 @@ def generate_code(body, outfile):
                 outfile.write("%s\n"%l)
                 print l
             elif stmt.type == "For":
-                print "For: %s" % stmt
+                l = "%s" % stmt.codegen()
+                outfile.write("%s"%l)
+                print l
             elif stmt.type == "While":
                 print "%s" % stmt.codegen()
             elif stmt.type == "If":

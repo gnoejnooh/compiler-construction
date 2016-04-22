@@ -2,21 +2,19 @@
 top:
 
 C0:
-	move_immed_f t1 1
-	iadd t1 t1 t1
-	move_immed_i Field-access(ClassReference(A), c, 3) 2
 	ret
 
 C1:
-	move_immed_f t2 3
-	iadd t1 t1 t2
-	ret
-
-C2:
-	ret
-
-C3:
-	move_immed_i Field-access(This, b, 5) 1
+	move_immed_i t2 0
+For0s:
+	move_immed_i t1 0
+For0:
+	flt t3, t1, 5
+	bz t1, For0e
+	move_immed_i t3, 1
+	iadd t1, t1, t3
+	jmp For0
+For0e:
 	ret
 
 __main__:
