@@ -453,7 +453,7 @@ class IfStmt(Stmt):
 
     def codegen(self):
         condition_str = "%s\n\t" % (self.condition.codegen())
-        if self.elsepart.type == 'Skip':
+        if str(self.elsepart.type) == 'Skip':
             ifstmt_str = "bz t%d IFEND%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n" % (IfStmt.labelcount, self.thenpart.codegen())
             else_str = "IFEND%d:\n" % (IfStmt.labelcount)
@@ -492,12 +492,19 @@ class IfStmt(Stmt):
             return 0
 
 class WhileStmt(Stmt):
+    lablecount = 0
     def __init__(self, cond, body, lines):
         self.lines = lines
         self.cond = cond
         self.body = body
         self.__typecorrect = None
         self.type = "While"
+
+    def codegen(self):
+        if self.body.type == 'Skip':
+            return
+        else:
+            condition_str = "WHILE%d:\n\t%s\n\t" % (WhileStmt.labelcount, self.cond.codegen())
 
     def printout(self):
         print "While(",
