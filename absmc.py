@@ -21,7 +21,6 @@ def find_static_var(classname, varname):
 
 def print_code(out, ct):
     global lastlabel
-    global tmpreg, argreg, controlstack, datastack
     global static_data_size, staticdata, classtable
 
     # File Output Source

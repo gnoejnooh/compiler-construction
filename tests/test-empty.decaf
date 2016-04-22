@@ -2,10 +2,16 @@ class A {
   int a;
   float b;
   static int c;
+  boolean d;
   A() {
     int x;
     x = x + 1;
     A.c = 2;
+  }
+  int world() {
+    int world;
+    world = world + 3;
+    return world;
   }
 }
 

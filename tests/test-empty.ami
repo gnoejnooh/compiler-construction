@@ -1,13 +1,22 @@
 .static_data 1
 top:
 
-t0:
-	move_immed_i t9 1
-	iadd t1 t1 t9
-	move_immed_i scp+3 2
+C0:
+	move_immed_f t1 1
+	iadd t1 t1 t1
+	move_immed_i Field-access(ClassReference(A), c, 3) 2
 	ret
 
-t1:
+C1:
+	move_immed_f t2 3
+	iadd t1 t1 t2
+	ret
+
+C2:
+	ret
+
+C3:
+	move_immed_i Field-access(This, b, 5) 1
 	ret
 
 __main__:

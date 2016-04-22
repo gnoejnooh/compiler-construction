@@ -3,6 +3,7 @@ staticdata = {}  # initially empty dictionary of static data.
 lastmethod = 0
 lastconstructor = 0
 static_data_size = 0
+currentclass = []
 tmpreg = []
 argreg = []
 
@@ -24,10 +25,8 @@ def find_static_var(classname, varname):
     print "Not found"
     return None
 
-
 def addtotable(table, key, value):
     table[key] = value
-
 
 def print_ast():
     for cid in classtable:
@@ -47,7 +46,6 @@ def typecheck():
         c = classtable[cid]
         c.typecheck()
     return not errorflag
-
 
 def initialize_ast():
     # define In class:
@@ -89,6 +87,7 @@ def initialize_ast():
 
 class Class:
     """A class encoding Classes in Decaf"""
+    global currentclass
     def __init__(self, classname, superclass):
         self.name = classname
         self.superclass = superclass
@@ -97,6 +96,8 @@ class Class:
         self.methods = []
         self.builtin = False
         self.classSize = 0
+        currentclass = []
+        currentclass.append(self)
 
     def printout(self):
         if (self.builtin):
@@ -183,7 +184,6 @@ class Class:
         self.constructors.append(constr)
     def add_method(self, method):
         self.methods.append(method)
-
     def add_default_constructor(self):
         # check if a parameterless constructor already exists
         exists = False
@@ -261,16 +261,13 @@ class Type:
         elif (self.kind == 'array') and (other.kind =='array'):
             return self.basetype.is_subtype_of(other.basetype)
         return False
-
     def isint(self):
         return self.kind == 'basic' and self.typename == 'int'
-
     def isnumeric(self):
         return self.kind == 'basic' and (self.typename == 'int'
                                          or self.typename == 'float')
     def isboolean(self):
         return self.kind == 'basic' and self.typename == 'boolean'
-
     def isok(self):
         return not (self.kind == 'basic' and self.typename == 'error')
 
@@ -312,7 +309,6 @@ class Method:
 
     def add_var(self, vname, vkind, vtype):
         self.tempreg += self.vars.add_var(vname, vkind, vtype)
-
 
     def printout(self):
         print "METHOD: {0}, {1}, {2}, {3}, {4}, {5}".format(self.id, self.name, self.inclass.name, self.visibility, self.storage, self.rtype)
@@ -682,6 +678,9 @@ class SkipStmt(Stmt):
     def printout(self):
         print "Skip"
 
+    def codegen(self):
+        return None
+
     def typecheck(self):
         return self.__typecorrect
 
@@ -708,6 +707,10 @@ class ConstantExpr(Expr):
             self.float = arg
         elif (kind == 'string'):
             self.string = arg
+        elif (kind == 'True'):
+            self.bool = True
+        elif (kind == 'False'):
+            self.bool = False
         self.__typeof = None
 
 
@@ -862,9 +865,10 @@ class AssignExpr(Expr):
         self.lhs = lhs
         self.rhs = rhs
         self.__typeof = None
-    
+
     def codegen(self):
         lhstype = self.lhs.typeof().typename
+
         if type(self.rhs) == BinaryExpr:
             if type(self.rhs.arg2) == ConstantExpr:
                 if self.rhs.arg2.typeof().typename == "float":
@@ -873,8 +877,10 @@ class AssignExpr(Expr):
                     return "move_immed_f t{0} {1}\n\ti{2} {3} {4} t{5}".format(len(tmpreg)+1, self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1, len(tmpreg)+1)
             else:
                 return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
+
         elif type(self.rhs) == VarExpr:
             return "move {0} {1}".format(self.lhs, self.rhs)
+
         elif type(self.rhs) == UnaryExpr:
             if(self.rhs.uop == 'uminus'):
                 if(self.rhs.arg.type == 'int'):
@@ -885,15 +891,21 @@ class AssignExpr(Expr):
                 unary_str = "bz %s, T%d\n\tmove_immed_i %s, 0\n\tjmp T%d\nT%d:\n\tmove_immed_i %s, 1\nT%d:" % (self.lhs, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
                 UnaryExpr.labelcount += 2
                 return unary_str
+
         elif type(self.rhs) == AutoExpr:
             auto_str = "\n\tmove %s, %s" % (self.lhs, self.rhs.arg)
             return self.rhs.codegen() + auto_str
-        else:
+
+        elif type(self.rhs) == ConstantExpr:
             if lhstype == 'boolean':
-                if self.rhs == "True":
-                    return "move_immed_i {0} {1}".format(self.lhs, 0)
+                UnaryExpr.labelcount += 1
+                if self.rhs.kind == "True":
+                    return "move_immed_i t{0} {1}".format(len(tmpreg)+1, 0)
                 else:
-                    return "move_immed_i {0} {1}".format(self.lhs, 1)
+                    return "move_immed_i t{0} {1}".format(len(tmpreg)+1, 1)
+            return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
+
+        else:
             return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 
     def typeof(self):
@@ -1074,11 +1086,18 @@ class FieldAccessExpr(Expr):
         self.field = None
 
     def __repr__(self):
-        global current_class
-        findvar = find_static_var(self.base.classref.name, self.fname)
-        if findvar:
-            return "scp+{0}".format(findvar.id, self.fname)
         return "Field-access({0}, {1}, {2})".format(self.base, self.fname, self.field.id)
+
+    def codegen(self):
+        global currentclass
+        print self.base.typeof()
+        if self.base.typeof().kind is "user":
+            findvar = self.base.typeof().baseclass
+            findvar = find_static_var(self.base.typeof().baseclass.name, self.fname)
+            return "{0}".format(self.fname)
+        else:
+            findvar = find_static_var(self.base.classref.name, self.fname)
+            return "scp+{0}".format(findvar.id, self.fname)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -1117,6 +1136,10 @@ class MethodInvocationExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "Method-call({0}, {1}, {2})".format(self.base, self.mname, self.args)
+
+
+    def codegen(self):
+        return None
 
     def typeof(self):
         if (self.__typeof == None):
