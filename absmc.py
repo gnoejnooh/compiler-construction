@@ -45,7 +45,7 @@ def print_code(out, ct):
             if values.methods:
                 for method in values.methods:
                     print method.name
-                    #generate_code(method.body, outfile)
+                    generate_code(method.body, outfile)
 
 
     outfile.write("\n__main__:\n")
@@ -73,7 +73,7 @@ def generate_code(body, outfile):
             elif stmt.type == "While":
                 print "While: %s" % stmt
             elif stmt.type == "If":
-                print "If: %s" % stmt
+                print "If: %s" % stmt.codegen()
             elif stmt.type == "Continue":
                 print "Continue: %s" % stmt
             elif stmt.type == "Break":

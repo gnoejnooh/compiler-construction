@@ -450,6 +450,9 @@ class IfStmt(Stmt):
         self.__typecorrect = None
         self.type = "If"
 
+    def codegen(self):
+        print self.condition.codegen()
+
     def printout(self):
         print "If(",
         self.condition.printout()
@@ -756,6 +759,7 @@ class VarExpr(Expr):
         return self.__typeof
 
 class UnaryExpr(Expr):
+    labelcount = 0
     def __init__(self, uop, expr, lines):
         self.lines = lines
         self.uop = uop
@@ -796,6 +800,15 @@ class BinaryExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
+
+    def codegen(self):
+        if arg1.type == 'int' and arg2.type == 'int':
+            return "i%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
+        else:
+            if(self.bop == 'mod'):
+                print "cannot perform mod with floating point"
+                sys.exit(0)
+            return "f%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -869,8 +882,8 @@ class AssignExpr(Expr):
                 else:
                     return "move_immed_i t%d -1\n\tfmul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
             else:
-                unary_str = "bz %s, T%d\n\tmove_immed_i %s, 0\nT%d:\n\tmove_immed_i %s, 1" % (self.lhs, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount, self.lhs)
-                UnaryExpr.labelcount += 1
+                unary_str = "bz %s, T%d\n\tmove_immed_i %s, 0\n\tjmp T%d\nT%d:\n\tmove_immed_i %s, 1\nT%d:" % (self.lhs, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
+                UnaryExpr.labelcount += 2
                 return unary_str
         elif type(self.rhs) == AutoExpr:
             auto_str = "\n\tmove %s, %s" % (self.lhs, self.rhs.arg)
@@ -878,9 +891,9 @@ class AssignExpr(Expr):
         else:
             if lhstype == 'boolean':
                 if self.rhs == "True":
-                    return "move_immed_i {0} {1}".format(self.lhs, 1)
-                else:
                     return "move_immed_i {0} {1}".format(self.lhs, 0)
+                else:
+                    return "move_immed_i {0} {1}".format(self.lhs, 1)
             return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 
     def typeof(self):
