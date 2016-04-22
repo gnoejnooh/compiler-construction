@@ -442,6 +442,7 @@ class Stmt(object):
     """ Top-level (abstract) class representing all statements"""
 
 class IfStmt(Stmt):
+    labelcount = 0
     def __init__(self, condition, thenpart, elsepart, lines):
         self.lines = lines
         self.condition = condition
@@ -451,7 +452,8 @@ class IfStmt(Stmt):
         self.type = "If"
 
     def codegen(self):
-        print self.condition.codegen()
+        ifstmt_str = "%s\n\tbz t%d ELSE%d\nIF%d:\n\t%s\n\tjmp IFEND%d\nELSE%d:\n\t%s\nIFEND%d:\n" % (self.condition.codegen(), len(tmpreg)+1, IfStmt.labelcount, IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount, IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
+        print ifstmt_str
 
     def printout(self):
         print "If(",
@@ -594,6 +596,13 @@ class BlockStmt(Stmt):
         self.stmtlist = [s for s in stmtlist if (s != None) and (not isinstance(s, SkipStmt))]
         self.__typecorrect = None
         self.type = "Block"
+
+    def codegen(self):
+        blockStmt_str = ''
+        for s in self.stmtlist:
+            if s.type != "Skip":
+                blockStmt_str += s.expr.codegen()
+        return blockStmt_str
 
     def printout(self):
         print "Block(["
@@ -802,13 +811,13 @@ class BinaryExpr(Expr):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
 
     def codegen(self):
-        if arg1.type == 'int' and arg2.type == 'int':
-            return "i%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
+        if self.arg1.var.type == 'int' and self.arg2.var.type == 'int':
+            return "i%s t%d, %s, %s" % (self.bop, len(tmpreg)+1, self.arg1, self.arg2)
         else:
             if(self.bop == 'mod'):
                 print "cannot perform mod with floating point"
                 sys.exit(0)
-            return "f%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
+            return "f%s t%d, %s, %s" % (self.bop, len(tmpreg)+1, self.arg1, self.arg2)
 
     def typeof(self):
         if (self.__typeof == None):
