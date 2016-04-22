@@ -57,7 +57,7 @@ def generate_code(body, outfile):
     global lastlabel
 
     if body.lines != None:
-        outfile.write("\nt%d:\n" % lastlabel)
+        outfile.write("\nC%d:\n" % lastlabel)
         lastlabel += 1
         for stmt in body.stmtlist:
             if stmt.type == "Skip":
@@ -65,7 +65,7 @@ def generate_code(body, outfile):
             elif stmt.type == "Block":
                 print "Block: %s" % stmt
             elif stmt.type == "Expr":
-                l = "\t%s" % stmt.expr
+                l = "\t%s" % stmt.expr.codegen()
                 outfile.write("%s\n"%l)
                 print l
             elif stmt.type == "For":

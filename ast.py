@@ -304,6 +304,9 @@ class Method:
         self.vars = VarTable()
         self.tempreg = 0
 
+    def __repr__(self):
+        return "M_%s_%d" % (self.name, self.id)
+
     def update_body(self, body):
         self.body = body
 
@@ -743,7 +746,8 @@ class VarExpr(Expr):
         self.var = var
         self.__typeof = None
     def __repr__(self):
-        tmpreg.append(self.var)
+        if self.var not in tmpreg:
+            tmpreg.append(self.var)
         return "t%d"%self.var.id
 
     def typeof(self):
@@ -845,19 +849,38 @@ class AssignExpr(Expr):
         self.lhs = lhs
         self.rhs = rhs
         self.__typeof = None
-    def __repr__(self):
+    
+    def codegen(self):
         lhstype = self.lhs.typeof().typename
         if type(self.rhs) == BinaryExpr:
             if type(self.rhs.arg2) == ConstantExpr:
                 if self.rhs.arg2.typeof().typename == "float":
-                    return "move_immed_f t9 {0}\n\ti{1} {2} {3} t9".format(self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1)
+                    return "move_immed_f t{0} {1}\n\ti{2} {3} {4} t{5}".format(len(tmpreg)+1, self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1, len(tmpreg)+1)
                 else:
-                    return "move_immed_i t9 {0}\n\ti{1} {2} {3} t9".format(self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1)
+                    return "move_immed_f t{0} {1}\n\ti{2} {3} {4} t{5}".format(len(tmpreg)+1, self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1, len(tmpreg)+1)
             else:
                 return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
         elif type(self.rhs) == VarExpr:
             return "move {0} {1}".format(self.lhs, self.rhs)
+        elif type(self.rhs) == UnaryExpr:
+            if(self.rhs.uop == 'uminus'):
+                if(self.rhs.arg.type == 'int'):
+                    return "move_immed_i t%d -1\n\timul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
+                else:
+                    return "move_immed_i t%d -1\n\tfmul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
+            else:
+                unary_str = "bz %s, T%d\n\tmove_immed_i %s, 0\nT%d:\n\tmove_immed_i %s, 1" % (self.lhs, UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount, self.lhs)
+                UnaryExpr.labelcount += 1
+                return unary_str
+        elif type(self.rhs) == AutoExpr:
+            auto_str = "\n\tmove %s, %s" % (self.lhs, self.rhs.arg)
+            return self.rhs.codegen() + auto_str
         else:
+            if lhstype == 'boolean':
+                if self.rhs == "True":
+                    return "move_immed_i {0} {1}".format(self.lhs, 1)
+                else:
+                    return "move_immed_i {0} {1}".format(self.lhs, 0)
             return "move_immed_{0} {1} {2}".format(lhstype[0], self.lhs, self.rhs)
 
     def typeof(self):
@@ -883,6 +906,18 @@ class AutoExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "Auto({0}, {1}, {2})".format(self.arg, self.oper, self.when)
+
+    def codegen(self):
+        if self.oper == 'inc':
+            if self.arg.var.type == 'int':
+                return "move_immde_i t%d, 1\n\tiadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+            else:
+                return "move_immde_f t%d, 1\n\tfadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+        else:
+            if self.arg.var.type == 'int':
+                return "move_immde_i t%d, 1\n\tisub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+            else:
+                return "move_immde_f t%d, 1\n\tfsub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
 
     def typeof(self):
         if (self.__typeof == None):
