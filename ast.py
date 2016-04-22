@@ -1,7 +1,7 @@
 classtable = {}  # initially empty dictionary of classes.
+staticdata = {}  # initially empty dictionary of static data.
 lastmethod = 0
 lastconstructor = 0
-lastfields = 0
 static_data_size = 0
 tmpreg = []
 argreg = []
@@ -12,6 +12,18 @@ def lookup(table, key):
         return table[key]
     else:
         return None
+
+def find_static_var(classname, varname):
+    global staticdata
+    print "Find static var; classname {0}, varname {1}".format(classname, varname)
+    for keys,values in staticdata.items():
+        print "Key: {0} Value: {1}".format(keys, values.name)
+        if values.inclass.name is classname and values.name is varname:
+            print "STATIC %s (%s.%s)" % (keys, values.inclass.name, values.name)
+            return values
+    print "Not found"
+    return None
+
 
 def addtotable(table, key, value):
     table[key] = value
@@ -84,6 +96,7 @@ class Class:
         self.constructors = []
         self.methods = []
         self.builtin = False
+        self.classSize = 0
 
     def printout(self):
         if (self.builtin):
@@ -157,6 +170,15 @@ class Class:
 
     def add_field(self, fname, field):
         self.fields[fname] = field
+        # Static / Non-static Field Size
+        # Update class size if the field is non-static
+        global static_data_size
+        if field.storage != "static":
+            self.classSize += 1
+        else:
+            staticdata[field.id] = field
+            static_data_size += 1
+
     def add_constructor(self, constr):
         self.constructors.append(constr)
     def add_method(self, method):
@@ -258,14 +280,12 @@ class Field:
     lastfield = 0
     def __init__(self, fname, fclass, visibility, storage, ftype):
         Field.lastfield += 1
-        global lastfields
-        lastfields += 1
         self.name = fname
         self.id = Field.lastfield
         self.inclass = fclass
-        self.visibility = visibility
-        self.storage = storage
-        self.type = ftype
+        self.visibility = visibility # Public/Private
+        self.storage = storage  # Static/Instance
+        self.type = ftype # Int/Float
 
     def printout(self):
         print "FIELD {0}, {1}, {2}, {3}, {4}, {5}".format(self.id, self.name, self.inclass.name, self.visibility, self.storage, self.type)
@@ -342,6 +362,7 @@ class VarTable:
         self.lastvar = 0
         self.lastblock = 0
         self.levels = [0]
+        self.localvar = 0
 
     def enter_block(self):
         self.lastblock += 1
@@ -356,6 +377,7 @@ class VarTable:
         self.lastvar += 1
         c = self.levels[0]   # current block number
         v = Variable(vname, self.lastvar, vkind, vtype)
+        print "variable type %s name %s" % (vkind, vname)
         vbl = self.vars[c]  # list of variables in current block
         vbl[vname] = v
 
@@ -710,11 +732,6 @@ class ConstantExpr(Expr):
                 self.__typeof = Type('boolean')
         return self.__typeof
 
-    def codegen(self):
-        if (self.__typeof == Type('int')):
-            print "move_immed_i %s, %s" % (availreg[0], self.int)
-
-
 class VarExpr(Expr):
     def __init__(self, var, lines):
         self.lines = lines
@@ -770,9 +787,6 @@ class BinaryExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
-
-    def code(self):
-        return "i%s %s, %s, %s" % (self.bop, Expr.lhs, self.arg1, self.arg2)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -1007,6 +1021,9 @@ class FieldAccessExpr(Expr):
         self.field = None
 
     def __repr__(self):
+        findvar = find_static_var(self.base.classref.name, self.fname)
+        if findvar:
+            return "scp+{0}".format(findvar.id, self.fname)
         return "Field-access({0}, {1}, {2})".format(self.base, self.fname, self.field.id)
 
     def typeof(self):

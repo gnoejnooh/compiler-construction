@@ -1,17 +1,21 @@
 class A {
   int a;
+  float b;
+  static int c;
   A() {
     int x;
-    float y;
-    x = 1;
-    y = 0.1;
-    x = x * 1;
-    y = x;
+    x = x + 1;
+    A.c = 2;
   }
 }
 
 class B {
-  int y;
+  int b;
   B() {
+    int y;
+  }
+  int hello() {
+    this.b = 1;
+    return this.b;
   }
 }

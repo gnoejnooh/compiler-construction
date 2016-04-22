@@ -7,22 +7,29 @@ argreg = []
 controlstack = []
 datastack = []
 static_data_size = 0
-static_data = []
+staticdata = {}
 classtable = {}
 lastlabel = 0
+
+def find_static_var(classname, varname):
+    for keys,values in staticdata.items():
+        if values.inclass.name is classname and values.name is varname:
+            print "STATIC %s (%s.%s)" % (keys, values.inclass.name, values.name)
+            return values
+    print "Not found"
+    return None
 
 def print_code(out, ct):
     global lastlabel
     global tmpreg, argreg, controlstack, datastack
-    global static_data_size, static_data, classtable
+    global static_data_size, staticdata, classtable
 
     # File Output Source
     outfile = open(out, 'w')
     classtable = ct
+    static_data_size = ast.static_data_size
+    staticdata = ast.staticdata
 
-    # Calculate static data size
-    static_data_size = ast.lastfields
-    
     outfile.write(".static_data %d\n" % static_data_size)
     outfile.write("top:\n")
 
@@ -30,7 +37,7 @@ def print_code(out, ct):
     for keys,values in classtable.items():
         # Print out the label
         if values.builtin:
-            print "Builitin class: %s" % keys
+            continue
         else:
             if values.constructors:
                 for constructor in values.constructors:

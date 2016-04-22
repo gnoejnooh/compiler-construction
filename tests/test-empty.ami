@@ -1,12 +1,10 @@
-.static_data 2
+.static_data 1
 top:
 
 t0:
-	move_immed_i t1 1
-	move_immed_f t2 0.1
 	move_immed_i t9 1
-	imul t1 t1 t9
-	move t2 t1
+	iadd t1 t1 t9
+	move_immed_i scp+3 2
 	ret
 
 t1:
