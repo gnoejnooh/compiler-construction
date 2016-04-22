@@ -14,7 +14,7 @@ class B {
   B() {
     int y;
   }
-  int hello() {
+  public int hello() {
     this.b = 1;
     return this.b;
   }

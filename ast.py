@@ -302,12 +302,14 @@ class Method:
         self.storage = storage
         self.rtype = rtype
         self.vars = VarTable()
+        self.tempreg = 0
 
     def update_body(self, body):
         self.body = body
 
     def add_var(self, vname, vkind, vtype):
-        self.vars.add_var(vname, vkind, vtype)
+        self.tempreg += self.vars.add_var(vname, vkind, vtype)
+
 
     def printout(self):
         print "METHOD: {0}, {1}, {2}, {3}, {4}, {5}".format(self.id, self.name, self.inclass.name, self.visibility, self.storage, self.rtype)
@@ -377,9 +379,12 @@ class VarTable:
         self.lastvar += 1
         c = self.levels[0]   # current block number
         v = Variable(vname, self.lastvar, vkind, vtype)
-        print "variable type %s name %s" % (vkind, vname)
         vbl = self.vars[c]  # list of variables in current block
         vbl[vname] = v
+        if vkind is "local":
+            return 1
+        else:
+            return 0
 
     def _find_in_block(self, vname, b):
         if (b in self.vars):
@@ -1021,6 +1026,7 @@ class FieldAccessExpr(Expr):
         self.field = None
 
     def __repr__(self):
+        global current_class
         findvar = find_static_var(self.base.classref.name, self.fname)
         if findvar:
             return "scp+{0}".format(findvar.id, self.fname)
