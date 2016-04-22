@@ -461,6 +461,7 @@ class IfStmt(Stmt):
             ifstmt_str = "bz t%d ELSE%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n\tjmp IFEND%d\n" % (IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount)
             else_str = "ELSE%d:\n\t%s\nIFEND%d:\n" % (IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
+            IfStmt.labelcount += 1
         return condition_str + ifstmt_str + then_str + else_str
 
     def printout(self):
@@ -501,10 +502,15 @@ class WhileStmt(Stmt):
         self.type = "While"
 
     def codegen(self):
-        if self.body.type == 'Skip':
-            return
+        if str(self.body.type) == 'Skip':
+            return ''
         else:
-            condition_str = "WHILE%d:\n\t%s\n\t" % (WhileStmt.labelcount, self.cond.codegen())
+            while_str = "WHILE%d:\n\t%s\n\t" % (WhileStmt.labelcount, self.cond.codegen())
+            condition_str = "bz t%d WEXIT%d\n\t" % (len(tmpreg)+1, WhileStmt.labelcount)
+            body_str = "%s\n\tjmp WHILE%d\n" % (self.body.codegen(), WhileStmt.labelcount)
+            exit_str = "WEXIT%d:\n" % (WhileStmt.labelcount)
+            WhileStmt.labelcount += 1
+            return while_str + condition_str + body_str + exit_str
 
     def printout(self):
         print "While(",
