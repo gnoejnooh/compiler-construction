@@ -2,12 +2,7 @@ import ast
 import sys
 import logging
 
-tmpreg = []
-argreg = []
-controlstack = []
-datastack = []
 static_data_size = 0
-staticdata = {}
 classtable = {}
 lastlabel = 0
 
@@ -46,7 +41,12 @@ def print_code(out, ct):
                 for method in values.methods:
                     print method.name
                     generate_code(method.body, outfile)
+        """    for key,values in ast.treg.items():
+                if key is not None:
+                    print "Key:{0}\nValue:{1}".format(key.name, values)
 
+                    for value in values:
+                        print "value: {0}".format(value.name)"""
 
     outfile.write("\n__main__:\n")
     outfile.write("\tcall top\n")
@@ -67,11 +67,11 @@ def generate_code(body, outfile):
             elif stmt.type == "Expr":
                 l = "\t%s" % stmt.expr.codegen()
                 outfile.write("%s\n"%l)
-                print l
+                #print l
             elif stmt.type == "For":
                 l = "%s" % stmt.codegen()
                 outfile.write("%s"%l)
-                print l
+                #print l
             elif stmt.type == "While":
                 print "%s" % stmt.codegen()
             elif stmt.type == "If":
@@ -81,7 +81,8 @@ def generate_code(body, outfile):
             elif stmt.type == "Break":
                 print "Break: %s" % stmt
             elif stmt.type == "Return":
-                print "Return: %s" % stmt
+                print ""
+                #print "Return: %s" % stmt.codegen()
             else:
                 print "Else: %s" % stmt
         outfile.write("\tret\n")

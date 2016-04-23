@@ -1,10 +1,12 @@
+import decafparser
+
 classtable = {}  # initially empty dictionary of classes.
-staticdata = {}  # initially empty dictionary of static data.
+staticdata = {}
 lastmethod = 0
 lastconstructor = 0
 static_data_size = 0
 tmpreg = []
-argreg = []
+treg = {}
 
 # Class table.  Only user-defined classes are placed in the class table.
 def lookup(table, key):
@@ -14,9 +16,8 @@ def lookup(table, key):
         return None
 
 def find_static_var(classname, varname):
-    global staticdata
     print "Find static var; classname {0}, varname {1}".format(classname, varname)
-    for keys,values in staticdata.items():
+    for keys,values in fstaticdata.items():
         print "Key: {0} Value: {1}".format(keys, values.name)
         if values.inclass.name is classname and values.name is varname:
             print "STATIC %s (%s.%s)" % (keys, values.inclass.name, values.name)
@@ -87,8 +88,21 @@ def initialize_ast():
     addtotable(classtable, "In", cin)
     addtotable(classtable, "Out", cout)
 
+def gettreg(c,var):
+    global treg
+    if treg.has_key(c):
+        for t in treg[c]:
+            if t is var:
+                print "MATCH FOUND {0}".format(t)
+                return "t%d" % treg[c].index(var)
+    else:
+        treg[c] = []
+    treg[c].append(var)
+    return "t%d" % treg[c].index(var)
+
 class Class:
     """A class encoding Classes in Decaf"""
+    global treg
     def __init__(self, classname, superclass):
         self.name = classname
         self.superclass = superclass
@@ -170,13 +184,15 @@ class Class:
 
     def add_field(self, fname, field):
         self.fields[fname] = field
+        print "ADDFIELD {0}/{1}".format(decafparser.current_class, field)
+        gettreg(decafparser.current_class, field)
         # Static / Non-static Field Size
         # Update class size if the field is non-static
         global static_data_size
         if field.storage != "static":
             self.classSize += 1
         else:
-            staticdata[field.id] = field
+            staticdata[static_data_size] = field
             static_data_size += 1
 
     def add_constructor(self, constr):
@@ -332,6 +348,7 @@ class Method:
 
 class Constructor:
     """A class encoding constructors and their attributes in Decaf"""
+    global treg
     def __init__(self, cname, visibility):
         global lastconstructor
         self.name = cname
@@ -379,6 +396,7 @@ class VarTable:
         # where should we check if we can indeed leave the block?
 
     def add_var(self, vname, vkind, vtype):
+        global treg
         self.lastvar += 1
         c = self.levels[0]   # current block number
         v = Variable(vname, self.lastvar, vkind, vtype)
@@ -430,9 +448,11 @@ class Variable:
         self.id = id
         self.kind = vkind
         self.type = vtype
+        self.new = gettreg(decafparser.current_class, self)
+        print "Variable::%s" % self.new
 
-    def __repr__(self):
-        return "t{0}".format(self.id)
+#    def __repr__(self):
+#        return "{0}".format(self.new)
 
     def printout(self):
         print "VARIABLE {0}, {1}, {2}, {3}".format(self.id, self.name, self.kind, self.type)
@@ -454,15 +474,17 @@ class IfStmt(Stmt):
     def codegen(self):
         condition_str = "%s\n\t" % (self.condition.codegen())
         if str(self.elsepart.type) == 'Skip':
-            ifstmt_str = "bz t%d IFEND%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
+            ifstmt_str = "bz t%d IFEND%d\n" % (gettreg(self.elsepart), IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n" % (IfStmt.labelcount, self.thenpart.codegen())
             else_str = "IFEND%d:\n" % (IfStmt.labelcount)
         else:
-            ifstmt_str = "bz t%d ELSE%d\n" % (len(tmpreg)+1, IfStmt.labelcount)
+            ifstmt_str = "bz t%d ELSE%d\n" % (gettreg(self.elsepart), IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n\tjmp IFEND%d\n" % (IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount)
             else_str = "ELSE%d:\n\t%s\nIFEND%d:\n" % (IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
             IfStmt.labelcount += 1
         return condition_str + ifstmt_str + then_str + else_str
+
+
 
     def printout(self):
         print "If(",
@@ -548,25 +570,16 @@ class ForStmt(Stmt):
         self.type="For"
 
     def codegen(self):
-        # For[LabelCount]:
-        #   cond stmt
-        #   branch
-        #   go for Body
-        #   last cond
-        #   branch back to for loop
-
-        forlabel = "For%ds:\n" % self.labelcount
+        forlabel = "For%ds:\n" % ForStmt.labelcount
         forinitstr = "\t%s\n" % self.init.codegen()
-        forloopstart="For%d:\n" % self.labelcount
+        forloopstart="For%d:\n" % ForStmt.labelcount
         forcond = "\t%s\n" % self.cond.codegen()
-        forcondjmp = "\tbz %s, For%de\n" % (self.init.lhs.var, self.labelcount)
+        forcondjmp = "\tbz %s, For%de\n" % (self.init.lhs.var, ForStmt.labelcount)
         forupdate = "\t%s\n" % self.update.codegen()
-        forloopback = "\tjmp For%d\n" % self.labelcount
-        fordone = "For%de:\n" % self.labelcount
-
-        self.labelcount += 1
+        forloopback = "\tjmp For%d\n" % ForStmt.labelcount
+        fordone = "For%de:\n" % ForStmt.labelcount
+        ForStmt.labelcount += 1
         return "{0}{1}{2}{3}{4}{5}{6}{7}".format(forlabel, forinitstr, forloopstart, forcond, forcondjmp, forupdate, forloopback, fordone)
-
 
     def printout(self):
         print "For(",
@@ -630,6 +643,13 @@ class ReturnStmt(Stmt):
             if (argtype.isok() and (not self.__typecorrect)):
                 signal_type_error("Type error in Return statement: {0} expected, found {1}".format(str(current_method.rtype), str(argtype)), self.lines)
         return self.__typecorrect
+
+    def codegen(self):
+        if isinstance(self.expr, ConstantExpr):
+            print self.expr.codegen
+            #returnline = "\tmove_immed_{0} {1} {2}".format(self.expr.codegen)
+        print self.expr
+        return "{0}\n\tret\n".format(self.expr)
 
     def has_return(self):
         return 2
@@ -805,9 +825,9 @@ class VarExpr(Expr):
         self.var = var
         self.__typeof = None
     def __repr__(self):
-        if self.var not in tmpreg:
-            tmpreg.append(self.var)
-        return "t%d"%self.var.id
+        # if self.var not in tmpreg:
+        # tmpreg.append(self.var)
+        return "{0}".format(gettreg(decafparser.current_class, self.var))
 
     def typeof(self):
         if (self.__typeof == None):

@@ -1,20 +1,34 @@
-.static_data 1
+.static_data 0
 top:
 
 C0:
 	ret
 
 C1:
-	move_immed_i t2 0
-For0s:
-	move_immed_i t1 0
-For0:
-	flt t3, t1, 5
-	bz t1, For0e
-	move_immed_i t3, 1
-	iadd t1, t1, t3
-	jmp For0
-For0e:
+	move_immed_f t1 1
+	iadd <ast.Variable instance at 0x107a23248> t3 t1
+	move_immed_f t1 2
+	iadd <ast.Variable instance at 0x107a23248> t3 t1
+	ret
+
+C2:
+	ret
+
+C3:
+	move_immed_f t1 1
+	iadd <ast.Variable instance at 0x107b271b8> t4 t1
+	move_immed_f t1 2
+	iadd <ast.Variable instance at 0x107b271b8> t4 t1
+	ret
+
+C4:
+	ret
+
+C5:
+	move_immed_f t1 1
+	iadd <ast.Variable instance at 0x107b27560> t2 t1
+	move_immed_f t1 2
+	iadd <ast.Variable instance at 0x107b27560> t2 t1
 	ret
 
 __main__:

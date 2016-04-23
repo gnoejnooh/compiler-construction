@@ -1,17 +1,36 @@
 class A {
   int a;
-  float b;
-  static int c;
   A() {
-    int x;
+    int b;
   }
   int world() {
-    int i;
-    int j;
-    j = 0;
-    for(i = 0; i < 5; i++) {
-      j = j + i;
-    }
+    int c;
+    c = c + 1;
+    c = c + 2;
+    return 0;
+  }
+}
+class B {
+  int z;
+  B() {
+    int x;
+  }
+  int world2() {
+    int t;
+    t = t + 1;
+    t = t + 2;
+    return 0;
+  }
+}
+class C {
+  int z;
+  C() {
+    int x;
+  }
+  int world3() {
+    int y;
+    y = y + 1;
+    y = y + 2;
     return 0;
   }
 }
