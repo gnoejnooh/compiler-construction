@@ -1,4 +1,4 @@
-import decafparser
+import decafparser as dp
 
 classtable = {}  # initially empty dictionary of classes.
 staticdata = {}
@@ -184,8 +184,8 @@ class Class:
 
     def add_field(self, fname, field):
         self.fields[fname] = field
-        print "ADDFIELD {0}/{1}".format(decafparser.current_class, field)
-        gettreg(decafparser.current_class, field)
+        print "ADDFIELD {0}/{1}".format(dp.current_class, field)
+        gettreg(dp.current_class, field)
         # Static / Non-static Field Size
         # Update class size if the field is non-static
         global static_data_size
@@ -448,8 +448,7 @@ class Variable:
         self.id = id
         self.kind = vkind
         self.type = vtype
-        self.new = gettreg(decafparser.current_class, self)
-        print "Variable::%s" % self.new
+        self.new = gettreg(dp.current_class, self)
 
 #    def __repr__(self):
 #        return "{0}".format(self.new)
@@ -474,11 +473,11 @@ class IfStmt(Stmt):
     def codegen(self):
         condition_str = "%s\n\t" % (self.condition.codegen())
         if str(self.elsepart.type) == 'Skip':
-            ifstmt_str = "bz t%d IFEND%d\n" % (gettreg(self.elsepart), IfStmt.labelcount)
+            ifstmt_str = "bz %s IFEND%d\n" % (gettreg(dp.current_class, self.elsepart), IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n" % (IfStmt.labelcount, self.thenpart.codegen())
             else_str = "IFEND%d:\n" % (IfStmt.labelcount)
         else:
-            ifstmt_str = "bz t%d ELSE%d\n" % (gettreg(self.elsepart), IfStmt.labelcount)
+            ifstmt_str = "bz %s ELSE%d\n" % (gettreg(dp.current_class, self.elsepart), IfStmt.labelcount)
             then_str = "IF%d:\n\t%s\n\tjmp IFEND%d\n" % (IfStmt.labelcount, self.thenpart.codegen(), IfStmt.labelcount)
             else_str = "ELSE%d:\n\t%s\nIFEND%d:\n" % (IfStmt.labelcount, self.elsepart.codegen(), IfStmt.labelcount)
             IfStmt.labelcount += 1
@@ -515,7 +514,7 @@ class IfStmt(Stmt):
             return 0
 
 class WhileStmt(Stmt):
-    lablecount = 0
+    labelcount = 0
     def __init__(self, cond, body, lines):
         self.lines = lines
         self.cond = cond
@@ -524,11 +523,12 @@ class WhileStmt(Stmt):
         self.type = "While"
 
     def codegen(self):
+        temp = gettreg(dp.current_class, "temp")
         if str(self.body.type) == 'Skip':
             return ''
         else:
             while_str = "WHILE%d:\n\t%s\n\t" % (WhileStmt.labelcount, self.cond.codegen())
-            condition_str = "bz t%d WEXIT%d\n\t" % (len(tmpreg)+1, WhileStmt.labelcount)
+            condition_str = "bz %s WEXIT%d\n\t" % (temp, WhileStmt.labelcount)
             body_str = "%s\n\tjmp WHILE%d\n" % (self.body.codegen(), WhileStmt.labelcount)
             exit_str = "WEXIT%d:\n" % (WhileStmt.labelcount)
             WhileStmt.labelcount += 1
@@ -570,16 +570,18 @@ class ForStmt(Stmt):
         self.type="For"
 
     def codegen(self):
+        temp = gettreg(dp.current_class, "temp")
         forlabel = "For%ds:\n" % ForStmt.labelcount
         forinitstr = "\t%s\n" % self.init.codegen()
         forloopstart="For%d:\n" % ForStmt.labelcount
         forcond = "\t%s\n" % self.cond.codegen()
-        forcondjmp = "\tbz %s, For%de\n" % (self.init.lhs.var, ForStmt.labelcount)
+        forcondjmp = "\tbz %s, For%de\n" % (temp, ForStmt.labelcount)
         forupdate = "\t%s\n" % self.update.codegen()
+        forbody = "\t%s\n" % self.body.codegen()
         forloopback = "\tjmp For%d\n" % ForStmt.labelcount
         fordone = "For%de:\n" % ForStmt.labelcount
         ForStmt.labelcount += 1
-        return "{0}{1}{2}{3}{4}{5}{6}{7}".format(forlabel, forinitstr, forloopstart, forcond, forcondjmp, forupdate, forloopback, fordone)
+        return "{0}{1}{2}{3}{4}{5}{6}{7}{8}".format(forlabel, forinitstr, forloopstart, forcond, forcondjmp, forupdate, forbody, forloopback, fordone)
 
     def printout(self):
         print "For(",
@@ -827,7 +829,7 @@ class VarExpr(Expr):
     def __repr__(self):
         # if self.var not in tmpreg:
         # tmpreg.append(self.var)
-        return "{0}".format(gettreg(decafparser.current_class, self.var))
+        return "{0}".format(gettreg(dp.current_class, self.var))
 
     def typeof(self):
         if (self.__typeof == None):
@@ -841,6 +843,7 @@ class UnaryExpr(Expr):
         self.uop = uop
         self.arg = expr
         self.__typeof = None
+    
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
 
@@ -874,17 +877,31 @@ class BinaryExpr(Expr):
         self.arg1 = arg1
         self.arg2 = arg2
         self.__typeof = None
+    
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
 
     def codegen(self):
-        if self.arg1.var.type == 'int' and self.arg2.var.type == 'int':
-            return "i%s t%d, %s, %s" % (self.bop, len(tmpreg)+1, self.arg1, self.arg2)
+        temp = gettreg(dp.current_class, "temp")
+        if type(self.arg1) == ConstantExpr or type(self.arg2) == ConstantExpr:
+            if str(self.arg1.typeof()) == 'int' and str(self.arg2.typeof()) == 'int':
+                if type(self.arg2) == ConstantExpr:
+                    binary_str = "move_immed_i %s, %s" % (temp, self.arg2)
+                    return binary_str + "\n\ti%s %s, %s, %s" % (self.bop, temp, self.arg1, temp)
+                return "i%s %s, %s, %s" % (self.bop, temp, self.arg1, self.arg2)
+            else:
+                if(self.bop == 'mod'):
+                    print "cannot perform mod with floating point"
+                    sys.exit(0)
+                return "f%s %s, %s, %s" % (self.bop, temp, self.arg1, self.arg2)
         else:
-            if(self.bop == 'mod'):
-                print "cannot perform mod with floating point"
-                sys.exit(0)
-            return "f%s t%d, %s, %s" % (self.bop, len(tmpreg)+1, self.arg1, self.arg2)
+            if str(self.arg1.var.type) == 'int' and str(self.arg2.var.type) == 'int':
+                return "i%s %s, %s, %s" % (self.bop, temp, self.arg1, self.arg2)
+            else:
+                if(self.bop == 'mod'):
+                    print "cannot perform mod with floating point"
+                    sys.exit(0)
+                return "f%s %s, %s, %s" % (self.bop, temp, self.arg1, self.arg2)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -941,26 +958,29 @@ class AssignExpr(Expr):
 
     def codegen(self):
         lhstype = self.lhs.typeof().typename
+        temp = gettreg(dp.current_class, "temp")
         if type(self.rhs) == BinaryExpr:
             if type(self.rhs.arg2) == ConstantExpr:
                 if self.rhs.arg2.typeof().typename == "float":
-                    return "move_immed_f t{0} {1}\n\ti{2} {3} {4} t{5}".format(len(tmpreg)+1, self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1, len(tmpreg)+1)
+                    return "move_immed_f {0} {1}\n\ti{2} {3} {4} {5}".format(temp, self.rhs.arg2, self.rhs.bop, gettreg(dp.current_class, self.lhs.var), self.rhs.arg1, temp)
                 else:
-                    return "move_immed_f t{0} {1}\n\ti{2} {3} {4} t{5}".format(len(tmpreg)+1, self.rhs.arg2, self.rhs.bop, self.lhs.var, self.rhs.arg1, len(tmpreg)+1)
+                    return "move_immed_i {0} {1}\n\ti{2} {3} {4} {5}".format(temp, self.rhs.arg2, self.rhs.bop, gettreg(dp.current_class, self.lhs.var), self.rhs.arg1, temp)
             else:
                 return "i{0} {1} {2} {3}".format(self.rhs.bop, self.lhs.var, self.rhs.arg1, self.rhs.arg2)
         elif type(self.rhs) == VarExpr:
             return "move {0} {1}".format(self.lhs, self.rhs)
         elif type(self.rhs) == UnaryExpr:
             if(self.rhs.uop == 'uminus'):
-                if(self.rhs.arg.type == 'int'):
-                    return "move_immed_i t%d -1\n\timul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
+                if type(self.rhs.arg) ==  ConstantExpr:
+                    return "move_immed_i %s -%s\n" % (self.lhs, self.rhs.arg)
+                if(str(self.rhs.arg.var.type) == 'int'):
+                    return "move_immed_i %s -1\n\timul %s, %s, %s" % (temp, self.lhs, self.rhs.arg, temp)
                 else:
-                    return "move_immed_i t%d -1\n\tfmul %s, %s, t%d" % (len(tmpreg)+1, self.lhs, self.lhs, len(tmpreg)+1)
+                    return "move_immed_f %s -1\n\tfmul %s, %s, %s" % (temp, self.lhs, self.rhs.arg, temp)
             else:
                 unary_str = "bz %s, T%d\n\t" % (self.lhs, UnaryExpr.labelcount)
                 iftrue_str = "move_immed_i %s, 0\n\tjmp T%d\n" % (self.lhs, UnaryExpr.labelcount+1)
-                iffalse_str = "T%d:\n\tmove_immed_i %s, 1\nT%d" % (UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
+                iffalse_str = "T%d:\n\tmove_immed_i %s, 1\nT%d:" % (UnaryExpr.labelcount, self.lhs, UnaryExpr.labelcount+1)
                 UnaryExpr.labelcount += 2
                 return unary_str + iftrue_str + iffalse_str
         elif type(self.rhs) == AutoExpr:
@@ -1000,16 +1020,17 @@ class AutoExpr(Expr):
         return "Auto({0}, {1}, {2})".format(self.arg, self.oper, self.when)
 
     def codegen(self):
+        temp = gettreg(dp.current_class, "temp")
         if self.oper == 'inc':
             if str(self.arg.var.type) == 'int':
-                return "move_immed_i t%d, 1\n\tiadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_i %s, 1\n\tiadd %s, %s, %s" % (temp, self.arg, self.arg, temp)
             else:
-                return "move_immed_f t%d, 1\n\tfadd %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_f %s, 1\n\tfadd %s, %s, %s" % (temp, self.arg, self.arg, temp)
         else:
             if str(self.arg.var.type) == 'int':
-                return "move_immed_i t%d, 1\n\tisub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_i %s, 1\n\tisub %s, %s, %s" % (temp, self.arg, self.arg, temp)
             else:
-                return "move_immed_f t%d, 1\n\tfsub %s, %s, t%d" % (len(tmpreg)+1, self.arg, self.arg, len(tmpreg)+1)
+                return "move_immed_f %s, 1\n\tfsub %s, %s, %s" % (temp, self.arg, self.arg, temp)
 
     def typeof(self):
         if (self.__typeof == None):

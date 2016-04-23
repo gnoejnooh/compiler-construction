@@ -34,12 +34,14 @@ def print_code(out, ct):
         if values.builtin:
             continue
         else:
+            outfile.write("\nC%d:\n" % lastlabel)
+            lastlabel += 1
             if values.constructors:
                 for constructor in values.constructors:
                     generate_code(constructor.body, outfile)
             if values.methods:
                 for method in values.methods:
-                    print method.name
+                    outfile.write("%s:\n" % method)
                     generate_code(method.body, outfile)
         """    for key,values in ast.treg.items():
                 if key is not None:
@@ -57,8 +59,6 @@ def generate_code(body, outfile):
     global lastlabel
 
     if body.lines != None:
-        outfile.write("\nC%d:\n" % lastlabel)
-        lastlabel += 1
         for stmt in body.stmtlist:
             if stmt.type == "Skip":
                 print "Skip: %s" % stmt
@@ -74,8 +74,10 @@ def generate_code(body, outfile):
                 #print l
             elif stmt.type == "While":
                 print "%s" % stmt.codegen()
+                outfile.write("%s"%stmt.codegen())
             elif stmt.type == "If":
                 print "\t%s" % stmt.codegen()
+                outfile.write("\t%s"%stmt.codegen())
             elif stmt.type == "Continue":
                 print "Continue: %s" % stmt
             elif stmt.type == "Break":
@@ -85,5 +87,4 @@ def generate_code(body, outfile):
                 #print "Return: %s" % stmt.codegen()
             else:
                 print "Else: %s" % stmt
-        outfile.write("\tret\n")
     return None
