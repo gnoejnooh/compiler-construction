@@ -1,0 +1,3 @@
+class a {
+	public static int c() {}
+}

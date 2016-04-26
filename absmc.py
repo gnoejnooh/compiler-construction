@@ -53,6 +53,7 @@ def print_code(out, ct):
     outfile.write("\n__main__:\n")
     outfile.write("\tcall top\n")
     outfile.write("\tret")
+
     return None
 
 def generate_code(body, outfile):
@@ -61,30 +62,23 @@ def generate_code(body, outfile):
     if body.lines != None:
         for stmt in body.stmtlist:
             if stmt.type == "Skip":
-                print "Skip: %s" % stmt
-            elif stmt.type == "Block":
-                print "Block: %s" % stmt
+                pass
             elif stmt.type == "Expr":
                 l = "\t%s" % stmt.expr.codegen()
                 outfile.write("%s\n"%l)
-                #print l
             elif stmt.type == "For":
                 l = "%s" % stmt.codegen()
                 outfile.write("%s"%l)
-                #print l
             elif stmt.type == "While":
-                print "%s" % stmt.codegen()
                 outfile.write("%s"%stmt.codegen())
             elif stmt.type == "If":
-                print "\t%s" % stmt.codegen()
                 outfile.write("\t%s"%stmt.codegen())
             elif stmt.type == "Continue":
-                print "Continue: %s" % stmt
+                outfile.write("%s"%stmt.codegen())
             elif stmt.type == "Break":
-                print "Break: %s" % stmt
+                outfile.write("%s"%stmt.codegen())
             elif stmt.type == "Return":
-                print ""
-                #print "Return: %s" % stmt.codegen()
+                outfile.write("\t%s"%stmt.codegen())
             else:
-                print "Else: %s" % stmt
-    return None
+                outfile.write("\tret\n");
+        return None

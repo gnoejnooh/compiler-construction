@@ -1,0 +1,2 @@
+class a {int x;}
+class b extends a {int y;}

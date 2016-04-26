@@ -1,0 +1,11 @@
+class a {
+	int y;
+	a(int u) {
+		y=u;
+	}
+	int set(int a){
+		a y;
+		y = new a();
+		y.y = a;
+	}
+}

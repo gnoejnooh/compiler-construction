@@ -1,0 +1,6 @@
+class a {
+	int x(){
+		a y;
+		y = new a();
+	}
+}

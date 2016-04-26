@@ -5,7 +5,6 @@ staticdata = {}
 lastmethod = 0
 lastconstructor = 0
 static_data_size = 0
-tmpreg = []
 treg = {}
 
 # Class table.  Only user-defined classes are placed in the class table.
@@ -14,6 +13,21 @@ def lookup(table, key):
         return table[key]
     else:
         return None
+
+def getmethodidbyname(c, m):
+    global classtable
+    for a in classtable[c.name].methods:
+        if str(a.name) == m:
+            return a.id
+    return None
+
+def getsizeheap(c):
+    sizeheap = 0
+    for m in c.methods:
+        if m.storage != "static":
+            sizeheap += 1
+    return sizeheap
+
 
 def find_static_var(classname, varname):
     print "Find static var; classname {0}, varname {1}".format(classname, varname)
@@ -93,7 +107,6 @@ def gettreg(c,var):
     if treg.has_key(c):
         for t in treg[c]:
             if t is var:
-                print "MATCH FOUND {0}".format(t)
                 return "t%d" % treg[c].index(var)
     else:
         treg[c] = []
@@ -184,7 +197,6 @@ class Class:
 
     def add_field(self, fname, field):
         self.fields[fname] = field
-        print "ADDFIELD {0}/{1}".format(dp.current_class, field)
         gettreg(dp.current_class, field)
         # Static / Non-static Field Size
         # Update class size if the field is non-static
@@ -647,11 +659,10 @@ class ReturnStmt(Stmt):
         return self.__typecorrect
 
     def codegen(self):
-        if isinstance(self.expr, ConstantExpr):
-            print self.expr.codegen
-            #returnline = "\tmove_immed_{0} {1} {2}".format(self.expr.codegen)
-        print self.expr
-        return "{0}\n\tret\n".format(self.expr)
+        if str(self.expr) != None:
+            return "\tret\n"
+        else:
+            return "{0}\n\tret\n".format(self.expr)
 
     def has_return(self):
         return 2
@@ -702,6 +713,9 @@ class BreakStmt(Stmt):
     def printout(self):
         print "Break"
 
+    def codegen(self):
+        return "\tret\n"
+
     def typecheck(self):
         return self.__typecorrect
 
@@ -713,6 +727,9 @@ class ContinueStmt(Stmt):
         self.lines = lines
         self.__typecorrect = True
         self.type = "Continue"
+
+    def codegen(self):
+        return "\tret\n"
 
     def printout(self):
         print "Continue"
@@ -843,7 +860,7 @@ class UnaryExpr(Expr):
         self.uop = uop
         self.arg = expr
         self.__typeof = None
-    
+
     def __repr__(self):
         return "Unary({0}, {1})".format(self.uop, self.arg)
 
@@ -877,7 +894,7 @@ class BinaryExpr(Expr):
         self.arg1 = arg1
         self.arg2 = arg2
         self.__typeof = None
-    
+
     def __repr__(self):
         return "Binary({0}, {1}, {2})".format(self.bop,self.arg1,self.arg2)
 
@@ -1208,6 +1225,7 @@ class FieldAccessExpr(Expr):
         return self.__typeof
 
 class MethodInvocationExpr(Expr):
+    global current_class
     def __init__(self, field, args, lines):
         self.lines = lines
         self.base = field.base
@@ -1217,6 +1235,45 @@ class MethodInvocationExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "Method-call({0}, {1}, {2})".format(self.base, self.mname, self.args)
+
+    def codegen(self):
+        global treg
+        asize = 0
+        tsize = 0
+        line = ""
+        tmpr = gettreg('tmp', 'tmp')
+        for arg in self.method.vars.vars:
+            line += "\tmove_immed_i {0} {1}\n".format(tmpr, tsize);
+            line += "\thstore sap {0} a{1}\n".format(tmpr, asize);
+            asize += 1
+        for t in treg:
+            line += "\tmove_immed_i {0} {1}\n".format(tmpr, tsize);
+            line += "\thstore sap {0} t{1}\n".format(tmpr, tsize);
+            tsize += 1
+        line += "\thalloc a0 {0}\n".format(getsizeheap(current_class))
+        asize = 1
+        for arg in self.args:
+            line += "\tmove a{0}, {1}\n".format(asize, arg)
+            asize += 1
+        if str(self.base) is "This":
+            baseclass = classtable[current_class.name]
+        else:
+            baseclass = classtable[self.base]
+
+        met = getmethodidbyname(baseclass, self.mname)
+        line += "\tcall M_{0}_{1}\n".format(self.mname, met)
+        tsize = 0
+        asize = 0
+        for t in treg:
+            line += "\tmove_immed_i {0} {1}\n".format(tmpr, tsize);
+            line += "\thload sap {0} t{1}\n".format(tmpr, tsize);
+            tsize += 1
+        for a in self.method.vars.vars:
+            line += "\tmove_immed_i {0} {1}\n".format(tmpr, tsize);
+            line += "\thload sap {0} a{1}\n".format(tmpr, asize);
+            asize += 1
+        return line
+
 
     def typeof(self):
         if (self.__typeof == None):
@@ -1257,6 +1314,10 @@ class NewObjectExpr(Expr):
     def __repr__(self):
         return "New-object({0}, {1})".format(self.classref.name, self.args)
 
+    def codegen(self):
+        l1 = "\thalloc {0} {1}".format(gettreg(self.classref, args), self.classref.classsize)
+        return l1
+
     def typeof(self):
         if (self.__typeof == None):
             # resolve the constructor name first
@@ -1279,6 +1340,7 @@ class ThisExpr(Expr):
     def __init__(self, lines):
         self.lines = lines
         self.__typeof = None
+        #self.classname = current_class
     def __repr__(self):
         return "This"
     def typeof(self):
@@ -1291,8 +1353,12 @@ class SuperExpr(Expr):
     def __init__(self, lines):
         self.lines = lines
         self.__typeof = None
+        self.classname = current_class
     def __repr__(self):
         return "Super"
+
+    def codegen(self):
+        return "{0}".format(self.classname)
 
     def typeof(self):
         if (self.__typeof == None):
@@ -1311,6 +1377,9 @@ class ClassReferenceExpr(Expr):
         self.__typeof = None
     def __repr__(self):
         return "ClassReference({0})".format(self.classref.name)
+
+    def codegen(self):
+        return "{0}".format(self.classref.name)
 
     def typeof(self):
         if (self.__typeof == None):

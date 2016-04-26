@@ -1,0 +1,8 @@
+class a {
+	int x() {
+		int a;
+		while(a) {
+
+		}
+	}
+}

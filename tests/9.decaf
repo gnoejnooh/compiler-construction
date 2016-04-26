@@ -1,0 +1,9 @@
+class a {
+	int x(int y){
+		if (y) {
+
+		}else{
+
+		}
+	}
+}

@@ -1,0 +1,10 @@
+class a {
+	int y;
+	a(int u) {
+		y=u;
+	}
+	int set(int a){
+		int k;
+		for(k=0;k<a;k++);
+	}
+}

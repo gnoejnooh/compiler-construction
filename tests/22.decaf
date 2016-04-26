@@ -1,0 +1,8 @@
+class a {
+	int a() {
+		while(1) {
+			break;
+			continue;
+		}
+	}
+}

@@ -1,0 +1,5 @@
+class a {
+	a x(){
+		return new a();
+	}
+}

@@ -1,35 +1,19 @@
-.static_data 0
+.static_data 1
 top:
 
 C0:
-	ret
+M_main_7:
+	move_immed_i t3 1
+	move t4 t3
+	move_immed_i t2, 1
+	iadd t3, t3, t2
+		ret
+M_aa_8:
+	move_immed_i t5 3
+		ret
 
 C1:
-	move_immed_f t1 1
-	iadd <ast.Variable instance at 0x107a23248> t3 t1
-	move_immed_f t1 2
-	iadd <ast.Variable instance at 0x107a23248> t3 t1
-	ret
-
-C2:
-	ret
-
-C3:
-	move_immed_f t1 1
-	iadd <ast.Variable instance at 0x107b271b8> t4 t1
-	move_immed_f t1 2
-	iadd <ast.Variable instance at 0x107b271b8> t4 t1
-	ret
-
-C4:
-	ret
-
-C5:
-	move_immed_f t1 1
-	iadd <ast.Variable instance at 0x107b27560> t2 t1
-	move_immed_f t1 2
-	iadd <ast.Variable instance at 0x107b27560> t2 t1
-	ret
+	move_immed_i t1 2
 
 __main__:
 	call top

@@ -1,36 +1,19 @@
 class A {
-  int a;
-  A() {
+  public void main() {
+    int a;
+    a = 1;
     int b;
+    b = a;
+    a++;
   }
-  int world() {
+  public void aa(int b) {
+    b = 3;
+  }
+}
+class B extends A{
+  static int ss;
+  public bb() {
     int c;
-    c = c + 1;
-    c = c + 2;
-    return 0;
-  }
-}
-class B {
-  int z;
-  B() {
-    int x;
-  }
-  int world2() {
-    int t;
-    t = t + 1;
-    t = t + 2;
-    return 0;
-  }
-}
-class C {
-  int z;
-  C() {
-    int x;
-  }
-  int world3() {
-    int y;
-    y = y + 1;
-    y = y + 2;
-    return 0;
+    c = 2;
   }
 }

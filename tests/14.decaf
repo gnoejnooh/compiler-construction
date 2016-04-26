@@ -1,0 +1,4 @@
+class a {
+	//class b {
+	int x;
+}

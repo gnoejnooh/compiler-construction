@@ -1,0 +1,7 @@
+class a {
+	int x(int u) {
+		int t[];
+		t = new int[u];
+		return t[10];
+	}
+}

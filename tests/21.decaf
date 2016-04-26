@@ -1,0 +1,5 @@
+class a {
+	int a;
+	int x(){return 1;}
+	int y(){a y;y=new a(); return y.x();}
+}

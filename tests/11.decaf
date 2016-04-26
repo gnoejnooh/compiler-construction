@@ -1,0 +1,6 @@
+class a {
+	int y;
+	a(int u) {
+		y=u;
+	}
+}
